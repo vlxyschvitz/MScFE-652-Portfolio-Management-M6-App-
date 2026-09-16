@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M6 · Advances and Challenges in Factor Investing</title>
+<meta name="description" content="An interactive companion to MScFE 652 Module 6: factor anomalies and multiple testing, smart beta and crowding, machine learning factor models, and advanced factor construction.">
+<style>
+:root{
+  --bg:#f7f5f0;
+  --bg-raise:#ffffff;
+  --bg-sink:#efece4;
+  --ink:#1d2321;
+  --ink-soft:#575f5c;
+  --ink-faint:#8a918e;
+  --rule:#ded8cc;
+  --rule-soft:#e9e4da;
+  --accent:#7a3f6d;
+  --accent-soft:#f1e7ef;
+  --warn:#a8542a;
+  --c1:#7a3f6d; --c2:#1f6f5c; --c3:#3d5a93; --c4:#b9622f;
+  --c5:#6f7a35; --c6:#a33c34; --c7:#7b736a; --c8:#57628f;
+  --shadow:0 1px 2px rgba(29,35,33,.06), 0 8px 24px -16px rgba(29,35,33,.24);
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#14181a;
+  --bg-raise:#1c2124;
+  --bg-sink:#0f1315;
+  --ink:#e8e9e6;
+  --ink-soft:#a7afab;
+  --ink-faint:#6f7873;
+  --rule:#2c3336;
+  --rule-soft:#232a2d;
+  --accent:#d08fc0;
+  --accent-soft:#2d2029;
+  --warn:#d98c5a;
+  --c1:#d08fc0; --c2:#54c0a2; --c3:#7b9ce0; --c4:#e39154;
+  --c5:#b3c065; --c6:#e2726a; --c7:#a3a29b; --c8:#8e9cd6;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -18px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:110px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important;animation:none!important}}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--sans);font-size:16.5px;line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent)}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:600;letter-spacing:-.012em;line-height:1.18;margin:0}
+p{margin:0 0 1em}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+.prose{max-width:68ch}
+
+/* ---------- header ---------- */
+header.site{
+  position:sticky;top:0;z-index:50;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:saturate(1.4) blur(10px);
+  border-bottom:1px solid var(--rule);
+}
+.bar{display:flex;align-items:center;gap:18px;padding:10px 24px;max-width:1080px;margin:0 auto}
+.mark{font-family:var(--serif);font-size:1.02rem;font-weight:600;white-space:nowrap}
+.mark span{color:var(--ink-faint);font-family:var(--sans);font-size:.74rem;display:block;font-weight:500;letter-spacing:.04em}
+nav.pills{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin-left:auto}
+nav.pills::-webkit-scrollbar{display:none}
+nav.pills a{
+  font-size:.82rem;text-decoration:none;color:var(--ink-soft);
+  padding:6px 11px;border-radius:999px;white-space:nowrap;border:1px solid transparent;
+}
+nav.pills a:hover{color:var(--ink);background:var(--bg-sink)}
+nav.pills a.on{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+.themebtn{
+  background:var(--bg-raise);border:1px solid var(--rule);color:var(--ink-soft);
+  border-radius:999px;padding:6px 12px;font:inherit;font-size:.8rem;cursor:pointer;white-space:nowrap;
+}
+.themebtn:hover{color:var(--ink);border-color:var(--ink-faint)}
+.skip{position:absolute;left:-9999px}
+.skip:focus{left:8px;top:8px;background:var(--bg-raise);padding:8px 14px;border-radius:8px;z-index:99}
+
+/* ---------- hero ---------- */
+.hero{padding:72px 0 44px;border-bottom:1px solid var(--rule)}
+.kicker{font-size:.78rem;color:var(--ink-faint);letter-spacing:.08em;margin-bottom:14px}
+.hero h1{font-size:clamp(2.1rem,5.4vw,3.5rem);max-width:16ch}
+.hero .sub{font-size:1.12rem;color:var(--ink-soft);max-width:60ch;margin-top:18px}
+.growthstrip{display:flex;gap:0;margin-top:38px;border:1px solid var(--rule);border-radius:12px;overflow:hidden;background:var(--bg-raise)}
+.growthstrip div{flex:1;padding:14px 16px;border-right:1px solid var(--rule-soft)}
+.growthstrip div:last-child{border-right:0}
+.growthstrip b{display:block;font-family:var(--mono);font-size:1.05rem;color:var(--accent)}
+.growthstrip small{color:var(--ink-faint);font-size:.78rem;line-height:1.4;display:block;margin-top:2px}
+@media(max-width:700px){.growthstrip{flex-direction:column}.growthstrip div{border-right:0;border-bottom:1px solid var(--rule-soft)}}
+
+/* ---------- sections ---------- */
+section{padding:60px 0;border-bottom:1px solid var(--rule)}
+.eyebrow{font-size:.8rem;color:var(--accent);font-family:var(--mono);margin-bottom:10px}
+section>.wrap>h2{font-size:clamp(1.6rem,3.4vw,2.25rem);max-width:22ch;margin-bottom:18px}
+.lede{font-size:1.04rem;color:var(--ink-soft);max-width:70ch}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:14px;margin-top:28px}
+.cards a{
+  text-decoration:none;color:inherit;background:var(--bg-raise);border:1px solid var(--rule);
+  border-radius:12px;padding:18px;display:block;
+}
+.cards a:hover{border-color:var(--accent)}
+.cards h4{font-size:1rem;margin-bottom:6px}
+.cards p{font-size:.86rem;color:var(--ink-soft);margin:0;line-height:1.5}
+.cards em{font-style:normal;font-family:var(--mono);font-size:.74rem;color:var(--ink-faint);display:block;margin-bottom:8px}
+
+/* ---------- panels ---------- */
+.panel{
+  background:var(--bg-raise);border:1px solid var(--rule);border-radius:14px;
+  padding:22px;margin-top:26px;box-shadow:var(--shadow);
+}
+.panel > h3{font-size:1.08rem;margin-bottom:4px}
+.panel > .hint{font-size:.85rem;color:var(--ink-soft);margin:6px 0 18px;max-width:72ch}
+.grid2{display:grid;grid-template-columns:minmax(230px,300px) 1fr;gap:26px;align-items:start}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}}
+.subgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+
+/* ---------- formula ---------- */
+.formula{
+  background:var(--bg-sink);border-left:3px solid var(--accent);
+  border-radius:0 8px 8px 0;padding:14px 18px;margin:18px 0;overflow-x:auto;
+}
+.formula .eq{font-family:var(--serif);font-size:1.12rem;white-space:nowrap}
+.formula .cap{font-size:.78rem;color:var(--ink-faint);margin-top:7px}
+.formula i{font-style:italic}
+sub,sup{font-size:.72em;font-family:var(--serif)}
+
+/* ---------- controls ---------- */
+.ctl{margin-bottom:16px}
+.ctl label{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:.84rem;color:var(--ink-soft);margin-bottom:5px}
+.ctl label b{font-family:var(--mono);font-size:.84rem;color:var(--ink);font-weight:500}
+input[type=range]{
+  width:100%;appearance:none;height:22px;background:transparent;cursor:pointer;margin:0;
+}
+input[type=range]::-webkit-slider-runnable-track{height:3px;background:var(--rule);border-radius:2px}
+input[type=range]::-moz-range-track{height:3px;background:var(--rule);border-radius:2px}
+input[type=range]::-webkit-slider-thumb{
+  appearance:none;width:15px;height:15px;border-radius:50%;background:var(--accent);
+  margin-top:-6px;border:2px solid var(--bg-raise);
+}
+input[type=range]::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:var(--accent);border:2px solid var(--bg-raise)}
+input[type=range]:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:4px}
+button.act{
+  background:var(--accent);color:#fff;border:0;border-radius:8px;padding:9px 16px;
+  font:inherit;font-size:.86rem;cursor:pointer;
+}
+[data-theme="dark"] button.act{color:#0f1315}
+button.act:hover{filter:brightness(1.07)}
+button.ghost{
+  background:transparent;color:var(--ink-soft);border:1px solid var(--rule);border-radius:8px;
+  padding:8px 14px;font:inherit;font-size:.84rem;cursor:pointer;
+}
+button.ghost:hover{color:var(--ink);border-color:var(--ink-faint)}
+button.ghost.on{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+
+/* ---------- stats ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1px;background:var(--rule-soft);border:1px solid var(--rule-soft);border-radius:10px;overflow:hidden;margin:18px 0}
+.stats div{background:var(--bg-raise);padding:11px 13px}
+.stats b{display:block;font-family:var(--mono);font-size:1.06rem;color:var(--ink);font-weight:500}
+.stats small{color:var(--ink-faint);font-size:.75rem;display:block;line-height:1.35;margin-top:1px}
+.stats div.hot b{color:var(--warn)}
+.stats div.good b{color:var(--accent)}
+
+/* ---------- tables ---------- */
+table{width:100%;border-collapse:collapse;font-size:.85rem;margin:14px 0}
+th,td{text-align:right;padding:7px 9px;border-bottom:1px solid var(--rule-soft)}
+th:first-child,td:first-child{text-align:left}
+thead th{color:var(--ink-faint);font-weight:500;font-size:.76rem;border-bottom:1px solid var(--rule)}
+tbody td{font-family:var(--mono);font-size:.82rem}
+tbody td:first-child{font-family:var(--sans)}
+tr.hl td{background:var(--accent-soft)}
+
+/* ---------- charts ---------- */
+.chartwrap{margin-top:8px}
+.chartwrap h4{font-size:.92rem;margin-bottom:2px}
+.chartwrap .note{font-size:.79rem;color:var(--ink-faint);margin:4px 0 10px;max-width:74ch}
+svg.chart{width:100%;height:auto;display:block;overflow:visible}
+svg.chart .grid{stroke:var(--rule-soft);stroke-width:1}
+svg.chart .ax{stroke:var(--rule);stroke-width:1}
+svg.chart text{fill:var(--ink-faint);font-family:var(--sans);font-size:11px}
+svg.chart text.axtitle{fill:var(--ink-soft);font-size:11.5px}
+svg.chart text.val{fill:var(--ink);font-family:var(--mono);font-size:10.5px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.78rem;color:var(--ink-soft);margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:13px;height:3px;border-radius:2px;display:inline-block}
+.legend i.dash{background:repeating-linear-gradient(90deg,currentColor 0 4px,transparent 4px 7px)}
+
+/* ---------- takeaway ---------- */
+.takeaway{
+  border-left:3px solid var(--accent);background:var(--accent-soft);
+  padding:15px 18px;border-radius:0 10px 10px 0;margin-top:26px;font-size:.93rem;max-width:74ch;
+}
+.takeaway strong{font-weight:600}
+.takeaway p:last-child{margin-bottom:0}
+
+footer{padding:34px 0 60px;color:var(--ink-faint);font-size:.82rem}
+.asset-row{display:flex;align-items:center;gap:8px;font-size:.8rem;margin-bottom:4px}
+.swatch{width:10px;height:10px;border-radius:3px;flex:none}
+.matgrid{display:grid;gap:6px 10px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.toggles{display:flex;flex-wrap:wrap;gap:6px}
+.optgrp{margin-bottom:15px}
+.optgrp>span{display:block;font-size:.8rem;color:var(--ink-soft);margin-bottom:6px}
+.pill{font-size:.78rem;padding:5px 10px;border-radius:7px;border:1px solid var(--rule);background:transparent;color:var(--ink-soft);cursor:pointer;font-family:inherit;line-height:1.3}
+.pill:hover{color:var(--ink);border-color:var(--ink-faint)}
+.pill.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.sidenote{font-size:.8rem;color:var(--ink-faint);margin-top:8px;max-width:72ch}
+.tag{display:inline-block;font-family:var(--mono);font-size:.72rem;padding:2px 7px;border-radius:5px;background:var(--bg-sink);color:var(--ink-soft);border:1px solid var(--rule-soft)}
+</style>
+</head>
+<body>
+<a class="skip" href="#overview">Skip to content</a>
+
+<header class="site">
+  <div class="bar">
+    <div class="mark">Factor Investing<span>MScFE 652 · Module 6</span></div>
+    <nav class="pills" id="nav">
+      <a href="#overview">Overview</a>
+      <a href="#lesson1">Anomalies</a>
+      <a href="#lesson2">Smart beta</a>
+      <a href="#lesson3">Machine learning</a>
+      <a href="#lesson4">Construction</a>
+    </nav>
+    <button class="themebtn" id="themebtn" aria-label="Switch colour theme">Dark mode</button>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="kicker">MScFE 652 · Module 6</div>
+    <h1>Which factors survive contact with the future?</h1>
+    <p class="sub">An interactive companion to the M6 lessons. Hundreds of published factors, a handful of real ones, and a research process almost perfectly designed to confuse the two. This module is about telling them apart — and about what happens to a factor once everyone owns it.</p>
+    <div class="growthstrip">
+      <div><b>&gt;400</b><small>factors published in top finance journals</small></div>
+      <div><b>t &gt; 3.0</b><small>the hurdle Harvey, Liu and Zhu argue a new factor should clear</small></div>
+      <div><b>−58%</b><small>average fall in returns after publication, McLean and Pontiff</small></div>
+    </div>
+  </div>
+</div>
+
+<section id="overview">
+  <div class="wrap">
+    <div class="eyebrow">Overview</div>
+    <h2>A discipline testing far more hypotheses than it admits</h2>
+    <p class="lede">Factor investing began with a small number of characteristics — size, value, momentum — that looked like compensation for bearing risk. It has since become an industry that publishes a new factor roughly every fortnight, packages the survivors as index products, and sells them to investors who arrive after the returns have already been earned. Module 6 works through the four places this breaks down: the statistics of searching a large space, the economics of everyone crowding into the same trade, the promise and the limits of handing the search to a machine, and the surprisingly large effect of construction choices that never appear in the paper's abstract.</p>
+    <div class="cards">
+      <a href="#lesson1"><em>Lesson 1</em><h4>Profitable anomalies or anomalous profits</h4><p>Multiple testing, data mining, and why a t-statistic of 2 means almost nothing when hundreds of factors have been tried.</p></a>
+      <a href="#lesson2"><em>Lesson 2</em><h4>Smart beta and not-so-smart beta</h4><p>Crowding, revaluation returns, and the unintended sector and style bets hiding inside a simple factor screen.</p></a>
+      <a href="#lesson3"><em>Lesson 3</em><h4>Factor models with machine learning</h4><p>Regularisation, nonlinearity, and translating a tiny out-of-sample R² into a Sharpe ratio worth trading.</p></a>
+      <a href="#lesson4"><em>Lesson 4</em><h4>Advanced factor construction</h4><p>The construction choices that never make the abstract, and how much of a reported Sharpe ratio they can create on their own.</p></a>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== LESSON 1 ===================== -->
+<section id="lesson1">
+  <div class="wrap">
+    <div class="eyebrow">Lesson 1</div>
+    <h2>Profitable anomalies, or anomalous profits</h2>
+    <p class="lede">A t-statistic of 2 means there is a one-in-twenty chance of seeing this result if the factor were worthless. That is a reasonable standard when you test one hypothesis. It is a catastrophic standard when the profession has tested several hundred and only publishes the winners. The arithmetic below is the whole argument: hold the false-discovery rate fixed, and the required t-statistic climbs with the size of the search.</p>
+
+    <div class="formula">
+      <div class="eq"><i>t</i> ≈ SR · √<i>T</i>&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;FDR = <span style="display:inline-block;text-align:center"><span style="border-bottom:1px solid currentColor;display:block;padding:0 6px"><i>M</i>(1 − π)·α</span><span style="display:block;padding:0 6px"><i>M</i>(1 − π)·α + <i>M</i>π·(1 − β)</span></span></div>
+      <div class="cap">A strategy's t-statistic is its Sharpe ratio scaled by the square root of the sample length in years. The false discovery rate is the share of published factors that are noise: false positives over all positives, where π is the fraction of tested factors that are genuinely profitable and 1 − β is the power to detect them.</div>
+    </div>
+
+    <div class="panel">
+      <h3>How many published factors are real?</h3>
+      <p class="hint">Set the size of the search and how many of the tested ideas actually work. The chart shows the two distributions of t-statistics — noise factors centred on zero, real factors centred on their true signal — and where your significance hurdle cuts them.</p>
+      <div class="grid2">
+        <div>
+          <div class="ctl"><label for="mtM">Factors tested by the profession <b id="mtMv">316</b></label><input type="range" id="mtM" min="1" max="3" step="0.02" value="2.5"></div>
+          <div class="ctl"><label for="mtPi">Fraction that are genuinely profitable <b id="mtPiv">10%</b></label><input type="range" id="mtPi" min="0.01" max="0.5" step="0.005" value="0.10"></div>
+          <div class="ctl"><label for="mtSR">True Sharpe of the real factors <b id="mtSRv">0.40</b></label><input type="range" id="mtSR" min="0.1" max="1.2" step="0.01" value="0.40"></div>
+          <div class="ctl"><label for="mtT">Sample length in years <b id="mtTv">40</b></label><input type="range" id="mtT" min="5" max="90" step="1" value="40"></div>
+          <div class="ctl"><label for="mtC">Your t-statistic hurdle <b id="mtCv">1.96</b></label><input type="range" id="mtC" min="1.2" max="5" step="0.01" value="1.96"></div>
+          <div class="btnrow">
+            <button class="ghost" id="mtB196">t = 1.96</button>
+            <button class="ghost" id="mtB30">t = 3.00</button>
+            <button class="ghost" id="mtBonf">Bonferroni</button>
+            <button class="ghost" id="mtFdr">Hold FDR at 5%</button>
+          </div>
+        </div>
+        <div>
+          <div class="stats" id="mtStats"></div>
+          <div class="chartwrap">
+            <h4>Where the hurdle cuts</h4>
+            <div class="note">Both curves are scaled by how many factors fall in each group, so the visible area under each is proportional to the count. Everything to the right of the dashed line gets published.</div>
+            <div id="mtChart"></div>
+            <div class="legend">
+              <span style="color:var(--c7)"><i style="background:var(--c7)"></i>Worthless factors</span>
+              <span style="color:var(--c2)"><i style="background:var(--c2)"></i>Genuinely profitable factors</span>
+              <span style="color:var(--c6)"><i class="dash" style="color:var(--c6)"></i>Your hurdle</span>
+            </div>
+          </div>
+          <div class="chartwrap" style="margin-top:20px">
+            <h4>False discovery rate against the hurdle</h4>
+            <div class="note">Raising the bar cuts false positives faster than true ones, but it also throws away real factors — the power reading in the panel above is what you are spending.</div>
+            <div id="mtFdrChart"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Mining a backtest</h3>
+      <p class="hint">Every strategy here is worthless by construction: pure noise, zero expected return, no skill anywhere. The only thing that happens is that a large number of them are tried and the best one is kept. Watch the winner's backtest — and then watch what it does next.</p>
+      <div class="grid2">
+        <div>
+          <div class="ctl"><label for="dmN">Strategies tried <b id="dmNv">500</b></label><input type="range" id="dmN" min="1" max="1000" step="1" value="500"></div>
+          <div class="ctl"><label for="dmT">Backtest length in months <b id="dmTv">120</b></label><input type="range" id="dmT" min="24" max="360" step="6" value="120"></div>
+          <div class="ctl"><label for="dmVol">Monthly volatility of each strategy <b id="dmVolv">4.0%</b></label><input type="range" id="dmVol" min="0.01" max="0.1" step="0.0025" value="0.04"></div>
+          <div class="btnrow"><button class="act" id="dmRun">Draw new noise</button></div>
+          <p class="hint" style="margin-top:16px">The expected maximum of <i>N</i> independent standard normals grows roughly like √(2 ln <i>N</i>). That is why the best of five hundred coin-flip strategies reliably looks like a genuine discovery, and why the number of trials has to be reported for a Sharpe ratio to mean anything.</p>
+        </div>
+        <div>
+          <div class="stats" id="dmStats"></div>
+          <div class="chartwrap">
+            <h4>Annualised Sharpe ratios of every strategy tried</h4>
+            <div class="note">All of these have a true Sharpe of exactly zero. The highlighted bar is the one that would have been written up.</div>
+            <div id="dmHist"></div>
+          </div>
+          <div class="chartwrap" style="margin-top:20px">
+            <h4>The winner, in sample and afterwards</h4>
+            <div class="note">The left half is the period the strategy was selected on. The right half is the same strategy continuing into fresh data it was not chosen on.</div>
+            <div id="dmPath"></div>
+            <div class="legend">
+              <span style="color:var(--c1)"><i style="background:var(--c1)"></i>Selected winner</span>
+              <span style="color:var(--c7)"><i style="background:var(--c7)"></i>A typical strategy from the same pool</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>What is left after publication</h3>
+      <p class="hint">McLean and Pontiff tracked published anomalies out of sample and after publication. Returns fell by roughly a quarter in the out-of-sample period before publication, which is statistical bias, and by more than half after publication, which is arbitrage. Split your reported return between the two explanations and see what remains.</p>
+      <div class="grid2">
+        <div>
+          <div class="ctl"><label for="pdRet">Reported in-sample return <b id="pdRetv">8.0%</b></label><input type="range" id="pdRet" min="0.01" max="0.20" step="0.0025" value="0.08"></div>
+          <div class="ctl"><label for="pdBias">Share that was statistical bias <b id="pdBiasv">26%</b></label><input type="range" id="pdBias" min="0" max="0.7" step="0.01" value="0.26"></div>
+          <div class="ctl"><label for="pdArb">Additional share arbitraged away after publication <b id="pdArbv">32%</b></label><input type="range" id="pdArb" min="0" max="0.7" step="0.01" value="0.32"></div>
+          <div class="ctl"><label for="pdCost">Implementation cost <b id="pdCostv">1.2%</b></label><input type="range" id="pdCost" min="0" max="0.05" step="0.001" value="0.012"></div>
+        </div>
+        <div>
+          <div class="stats" id="pdStats"></div>
+          <div class="chartwrap">
+            <h4>From the paper to your account</h4>
+            <div class="note">Each bar starts from the reported figure and removes one more layer of the explanation.</div>
+            <div id="pdChart"></div>
+            <div class="legend">
+              <span style="color:var(--c1)"><i style="background:var(--c1)"></i>What you keep</span>
+              <span style="color:var(--c7)"><i style="background:var(--c7)"></i>Statistical bias</span>
+              <span style="color:var(--c4)"><i style="background:var(--c4)"></i>Arbitraged away</span>
+              <span style="color:var(--c6)"><i style="background:var(--c6)"></i>Costs</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="takeaway">
+      <p><strong>The question to ask of any factor:</strong> not "is the t-statistic significant" but "significant against what search". A factor discovered by an economic argument and then tested once is a different object from a factor found by scanning a database, even when the two produce identical numbers.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== LESSON 2 ===================== -->
+<section id="lesson2">
+  <div class="wrap">
+    <div class="eyebrow">Lesson 2</div>
+    <h2>Smart beta, herding, and not-so-smart beta</h2>
+    <p class="lede">Smart beta took factor research and turned it into a product: transparent rules, index-fund fees, daily liquidity. That packaging created a new problem. When money floods into a factor, it bids up the price of exactly the securities the factor holds. The inflow shows up as performance, the performance attracts more inflow, and the strategy's valuation runs away from its history — right up until it does not.</p>
+
+    <div class="formula">
+      <div class="eq">realised return = structural return + revaluation return</div>
+      <div class="cap">Arnott and co-authors' decomposition. Only the first term is repeatable. The second is a one-off transfer from tomorrow's return to today's, and it reverses if the valuation spread mean-reverts.</div>
+    </div>
+
+    <div class="panel">
+      <h3>A crowding cycle</h3>
+      <p class="hint">A simple feedback loop: performance attracts flows, flows push prices, higher prices raise today's return and lower tomorrow's. Nothing about the underlying factor changes at any point — the boom and the bust are entirely a product of the money chasing it.</p>
+      <div class="grid2">
+        <div>
+          <div class="ctl"><label for="cwStruct">Structural factor return <b id="cwStructv">3.0%</b></label><input type="range" id="cwStruct" min="0" max="0.08" step="0.0025" value="0.03"></div>
+          <div class="ctl"><label for="cwFlow">How strongly flows chase performance <b id="cwFlowv">1.6</b></label><input type="range" id="cwFlow" min="0" max="4" step="0.05" value="1.6"></div>
+          <div class="ctl"><label for="cwImpact">Price impact of a unit of flow <b id="cwImpactv">0.55</b></label><input type="range" id="cwImpact" min="0" max="1.5" step="0.01" value="0.55"></div>
+          <div class="ctl"><label for="cwRev">Speed the valuation spread reverts <b id="cwRevv">0.12</b></label><input type="range" id="cwRev" min="0.01" max="0.5" step="0.005" value="0.12"></div>
+          <div class="btnrow"><button class="act" id="cwRun">Re-run the cycle</button></div>
+          <div class="sidenote">Valuation is measured as the spread between what the factor's long leg and short leg trade at, relative to its own history. Zero is normal; positive means the strategy has become expensive relative to how it has historically been priced.</div>
+        </div>
+        <div>
+          <div class="stats" id="cwStats"></div>
+          <div class="chartwrap">
+            <h4>Cumulative factor return and assets chasing it</h4>
+            <div class="note">Both series rebased to 1 at the start.</div>
+            <div id="cwChart"></div>
+            <div class="legend">
+              <span style="color:var(--c1)"><i style="background:var(--c1)"></i>Cumulative factor return</span>
+              <span style="color:var(--c4)"><i style="background:var(--c4)"></i>Assets in the strategy</span>
+            </div>
+          </div>
+          <div class="chartwrap" style="margin-top:20px">
+            <h4>Valuation spread, and the return it borrows from the future</h4>
+            <div class="note">When the spread is above zero the strategy is expensive by its own standards, and the revaluation contribution to past returns is about to be handed back.</div>
+            <div id="cwVal"></div>
+            <div class="legend">
+              <span style="color:var(--c3)"><i style="background:var(--c3)"></i>Valuation spread</span>
+              <span style="color:var(--c6)"><i style="background:var(--c6)"></i>Revaluation share of rolling return</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>What a value screen actually buys</h3>
+      <p class="hint">Three hundred simulated stocks, each with a value score, a momentum score, a size, a market beta and a sector. Sort on value alone, go long the cheapest fifth and short the dearest fifth, and inspect what else came along for the ride.</p>
+      <div class="grid2">
+        <div>
+          <div class="optgrp">
+            <span>Sorting method</span>
+            <div class="toggles" id="nsSort">
+              <button class="pill on" data-v="raw">Sort on raw value score</button>
+              <button class="pill" data-v="sector">Sector-neutral ranking</button>
+              <button class="pill" data-v="resid">Regress out other factors first</button>
+            </div>
+          </div>
+          <div class="optgrp">
+            <span>Weighting inside each leg</span>
+            <div class="toggles" id="nsWeight">
+              <button class="pill on" data-v="equal">Equal weight</button>
+              <button class="pill" data-v="cap">Market-cap weight</button>
+            </div>
+          </div>
+          <div class="ctl"><label for="nsSectorTilt">How concentrated cheap stocks are in one sector <b id="nsSectorTiltv">0.80</b></label><input type="range" id="nsSectorTilt" min="0" max="1.6" step="0.02" value="0.80"></div>
+          <div class="ctl"><label for="nsMomLink">How negatively value and momentum relate <b id="nsMomLinkv">−0.35</b></label><input type="range" id="nsMomLink" min="-0.8" max="0.2" step="0.01" value="-0.35"></div>
+          <div class="ctl"><label for="nsSizeLink">How much cheap means small <b id="nsSizeLinkv">−0.40</b></label><input type="range" id="nsSizeLink" min="-0.8" max="0.2" step="0.01" value="-0.40"></div>
+          <div class="btnrow"><button class="act" id="nsRun">New universe</button></div>
+        </div>
+        <div>
+          <div class="stats" id="nsStats"></div>
+          <div class="chartwrap">
+            <h4>Net exposure of the long-short portfolio</h4>
+            <div class="note">Intended exposure is the value score. Everything else is an accident of the screen.</div>
+            <div id="nsExp"></div>
+          </div>
+          <div class="chartwrap" style="margin-top:20px">
+            <h4>Net sector position</h4>
+            <div class="note">Long leg weight minus short leg weight, sector by sector. A market-neutral portfolio can still be an enormous sector bet.</div>
+            <div id="nsSec"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="takeaway">
+      <p><strong>Two failure modes, one label:</strong> not-so-smart beta is a product that does not deliver the exposure on the tin, because a naive screen loads on whatever happens to correlate with the signal. Crowded beta is a product that does deliver the exposure, at a price that has already discounted the next decade of it. Neutralisation fixes the first. Only valuation discipline touches the second.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== LESSON 3 ===================== -->
+<section id="lesson3">
+  <div class="wrap">
+    <div class="eyebrow">Lesson 3</div>
+    <h2>Factor models with machine learning</h2>
+    <p class="lede">The classical factor model is a linear regression of returns on a handful of characteristics. Machine learning relaxes two things at once: it lets you use hundreds of predictors without the estimates exploding, and it lets the relationship be nonlinear. Both help. Neither produces the out-of-sample R² you might expect — in the published work the monthly figure is a fraction of one percent, and the interesting question is why that is still worth a great deal of money.</p>
+
+    <div class="formula">
+      <div class="eq">β̂<sub>ridge</sub> = (X′X + λ<i>T</i>·I)<sup>−1</sup>X′y&nbsp;&nbsp;&nbsp;·&nbsp;&nbsp;&nbsp;E[R²<sub>out</sub>] ≈ R²<sub>true</sub> − (1 − R²<sub>true</sub>)·<i>K</i>/<i>T</i></div>
+      <div class="cap">Ridge shrinks coefficients toward zero in exchange for a large reduction in their variance. The second expression is the reason it is needed: for ordinary least squares, out-of-sample fit degrades in proportion to predictors per observation, so a model with 100 predictors and 200 months is expected to have negative out-of-sample R² even when the signal is real.</div>
+    </div>
+
+    <div class="panel">
+      <h3>The cost of an extra predictor</h3>
+      <p class="hint">Simulated returns generated from a genuinely predictive linear model, fitted with ridge across a range of penalties. Training fit is monotone and misleading; test fit has an interior optimum, and where that optimum sits depends entirely on how many predictors you are asking the data to support.</p>
+      <div class="grid2">
+        <div>
+          <div class="ctl"><label for="mlK">Predictors in the model <b id="mlKv">30</b></label><input type="range" id="mlK" min="2" max="90" step="1" value="30"></div>
+          <div class="ctl"><label for="mlTrue">Predictors that genuinely matter <b id="mlTruev">5</b></label><input type="range" id="mlTrue" min="1" max="20" step="1" value="5"></div>
+          <div class="ctl"><label for="mlT">Observations available <b id="mlTv">360</b></label><input type="range" id="mlT" min="40" max="800" step="10" value="360"></div>
+          <div class="ctl"><label for="mlR2">True predictable share of variance <b id="mlR2v">5.0%</b></label><input type="range" id="mlR2" min="0.005" max="0.30" step="0.005" value="0.05"></div>
+          <div class="btnrow"><button class="act" id="mlRun">New sample</button></div>
+          <div class="sidenote">The test set is a fresh draw from the same data-generating process, so the gap between the two curves is pure overfitting rather than any change in the world.</div>
+        </div>
+        <div>
+          <div class="stats" id="mlStats"></div>
+          <div class="chartwrap">
+            <h4>Fit against the strength of the penalty</h4>
+            <div class="note">The penalty runs from effectively none on the left, which is ordinary least squares, to so much shrinkage on the right that the model predicts a constant.</div>
+            <div id="mlChart"></div>
+            <div class="legend">
+              <span style="color:var(--c3)"><i style="background:var(--c3)"></i>In sample</span>
+              <span style="color:var(--c1)"><i style="background:var(--c1)"></i>Out of sample</span>
+              <span style="color:var(--c2)"><i class="dash" style="color:var(--c2)"></i>True R²</span>
+              <span style="color:var(--c6)"><i class="dash" style="color:var(--c6)"></i>Best penalty</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>When the relationship is not a straight line</h3>
+      <p class="hint">Here the true expected return depends on two characteristics and on their interaction — a stock has to be cheap <em>and</em> improving before the signal fires. A plain linear model cannot represent that at any sample size. A linear model with the right interaction term written in by hand can, and will beat everything, because it <em>is</em> the true model. The tree has to find the shape without being told it, which costs something but does not require knowing the answer in advance.</p>
+      <div class="grid2">
+        <div>
+          <div class="ctl"><label for="nlGamma">Strength of the interaction <b id="nlGammav">1.00</b></label><input type="range" id="nlGamma" min="0" max="2" step="0.02" value="1.0"></div>
+          <div class="ctl"><label for="nlDepth">Tree depth <b id="nlDepthv">3</b></label><input type="range" id="nlDepth" min="1" max="6" step="1" value="3"></div>
+          <div class="ctl"><label for="nlT">Training observations <b id="nlTv">600</b></label><input type="range" id="nlT" min="100" max="3000" step="50" value="600"></div>
+          <div class="ctl"><label for="nlNoise">Noise relative to signal <b id="nlNoisev">2.0×</b></label><input type="range" id="nlNoise" min="0.2" max="6" step="0.1" value="2.0"></div>
+          <div class="btnrow"><button class="act" id="nlRun">New sample</button></div>
+          <div class="sidenote">Push the interaction to zero and the linear model wins, because the tree is paying for flexibility it does not need. That trade-off is the whole of model selection.</div>
+        </div>
+        <div>
+          <div class="stats" id="nlStats"></div>
+          <div class="subgrid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))">
+            <div class="chartwrap"><h4 style="font-size:.85rem">True signal</h4><div id="nlS1"></div></div>
+            <div class="chartwrap"><h4 style="font-size:.85rem">Linear fit</h4><div id="nlS2"></div></div>
+            <div class="chartwrap"><h4 style="font-size:.85rem">Tree fit</h4><div id="nlS3"></div></div>
+          </div>
+          <div class="note" style="margin-top:6px">Each square maps the two characteristics onto predicted return: the horizontal axis is the value score, the vertical axis is the momentum score. The linear model can only produce a tilted plane.</div>
+          <div class="chartwrap" style="margin-top:18px">
+            <h4>Out-of-sample R² by model</h4>
+            <div id="nlBars"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>From a tiny R² to a tradeable Sharpe ratio</h3>
+      <p class="hint">A monthly cross-sectional R² of half a percent sounds like nothing. Run it through the fundamental law of active management and it is not nothing at all — but only if breadth is large, the signal is implemented faithfully, and costs are contained.</p>
+      <div class="formula" style="margin-top:0">
+        <div class="eq">IR ≈ TC · IC · √<i>B</i>&nbsp;&nbsp;&nbsp;with&nbsp;&nbsp;&nbsp;IC ≈ √R²</div>
+        <div class="cap">Information ratio equals the transfer coefficient — how much of the signal survives your constraints — times the information coefficient, times the square root of the number of independent bets per year.</div>
+      </div>
+      <div class="grid2">
+        <div>
+          <div class="ctl"><label for="flR2">Cross-sectional R² per period <b id="flR2v">0.50%</b></label><input type="range" id="flR2" min="0.0002" max="0.03" step="0.0002" value="0.005"></div>
+          <div class="ctl"><label for="flBreadth">Independent bets per year <b id="flBreadthv">504</b></label><input type="range" id="flBreadth" min="12" max="6000" step="12" value="504"></div>
+          <div class="ctl"><label for="flTC">Transfer coefficient <b id="flTCv">0.45</b></label><input type="range" id="flTC" min="0.1" max="1" step="0.01" value="0.45"></div>
+          <div class="ctl"><label for="flCost">Annual cost drag <b id="flCostv">1.5%</b></label><input type="range" id="flCost" min="0" max="0.08" step="0.0025" value="0.015"></div>
+          <div class="ctl"><label for="flVol">Tracking error targeted <b id="flVolv">6.0%</b></label><input type="range" id="flVol" min="0.01" max="0.20" step="0.005" value="0.06"></div>
+        </div>
+        <div>
+          <div class="stats" id="flStats"></div>
+          <div class="chartwrap">
+            <h4>Net information ratio against breadth</h4>
+            <div class="note">Gross information ratio grows with the square root of breadth; the cost drag does not shrink, so the net line only lifts off once there are enough independent bets to pay for the trading.</div>
+            <div id="flChart"></div>
+            <div class="legend">
+              <span style="color:var(--c3)"><i class="dash" style="color:var(--c3)"></i>Gross</span>
+              <span style="color:var(--c1)"><i style="background:var(--c1)"></i>Net of costs</span>
+              <span style="color:var(--c6)"><i class="dash" style="color:var(--c6)"></i>Your breadth</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="takeaway">
+      <p><strong>What machine learning does and does not change:</strong> it makes a large predictor set usable and it lets the response bend, both of which are real gains. It does not create signal, it does not lower the multiple-testing bar — a flexible model searches an enormous hypothesis space, so Lesson 1 applies with more force, not less — and it does not pay your transaction costs.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== LESSON 4 ===================== -->
+<section id="lesson4">
+  <div class="wrap">
+    <div class="eyebrow">Lesson 4</div>
+    <h2>Advanced factor construction</h2>
+    <p class="lede">Between "value works" and a portfolio you can trade sit a dozen decisions: which universe, which accounting definition, how far to lag the data, how many stocks in each leg, how often to rebalance, how to weight, whether to neutralise, how hard to trim outliers. None of them is the hypothesis. All of them move the answer. Run the same signal through every combination and the reported Sharpe ratio spreads across a range wide enough to contain both a career-making paper and a rejection letter.</p>
+
+    <div class="panel">
+      <h3>The construction lab</h3>
+      <p class="hint">One underlying signal, many defensible ways to implement it. Each choice moves gross return, volatility and turnover; cost is charged against turnover. The histogram behind your choice is every other combination you could equally well have reported.</p>
+      <div class="grid2">
+        <div id="fcControls"></div>
+        <div>
+          <div class="stats" id="fcStats"></div>
+          <div class="chartwrap">
+            <h4>Net Sharpe across every construction you could have chosen</h4>
+            <div class="note">The distribution is generated by enumerating all combinations of the choices on the left, holding the underlying signal fixed. Your current configuration is the highlighted bar.</div>
+            <div id="fcHist"></div>
+            <div class="legend">
+              <span style="color:var(--c1)"><i style="background:var(--c1)"></i>All constructions</span>
+              <span style="color:var(--c6)"><i class="dash" style="color:var(--c6)"></i>Your construction</span>
+            </div>
+          </div>
+          <div class="chartwrap" style="margin-top:20px">
+            <h4>What each choice does on its own</h4>
+            <div class="note">Average net Sharpe across all constructions that share the given setting, so the bars show a choice's effect after averaging over everything else.</div>
+            <div id="fcEffect"></div>
+          </div>
+          <table id="fcTable"><thead><tr><th>Construction</th><th>Gross Sharpe</th><th>Turnover</th><th>Cost drag</th><th>Net Sharpe</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+      <div class="sidenote">This is a stylised model, not a backtest: each option carries an assumed effect on return, risk and turnover, calibrated to the direction and rough magnitude reported in the construction literature. The point it makes — that the spread across defensible choices is comparable to the effect being measured — is robust to the exact numbers.</div>
+    </div>
+
+    <div class="panel">
+      <h3>Combining signals: integrate, or blend portfolios?</h3>
+      <p class="hint">You have three signals. You can average them into one score and build a single portfolio, or build three portfolios and hold a third of each. The usual claim is that integrating is better, because a blended book happily holds a stock that one signal loves and another hates. Here both are built on the same simulated data and scored on the same basis, so you can check whether that is where the gain actually comes from.</p>
+      <div class="formula" style="margin-top:0">
+        <div class="eq">IC<sub>combined</sub> = <b>w</b>′<b>ic</b> / √(<b>w</b>′Ω<b>w</b>)&nbsp;&nbsp;&nbsp;maximised at&nbsp;&nbsp;&nbsp;<b>w</b> ∝ Ω<sup>−1</sup><b>ic</b></div>
+        <div class="cap">Ω is the correlation matrix of the signals. When signals are uncorrelated, equal weighting is close to optimal; as they converge, the optimal weights start taking large offsetting positions and the combination stops adding much.</div>
+      </div>
+      <div class="grid2">
+        <div>
+          <div id="sgControls"></div>
+          <div class="ctl"><label for="sgRho">Correlation between the signals <b id="sgRhov">0.20</b></label><input type="range" id="sgRho" min="-0.2" max="0.9" step="0.01" value="0.20"></div>
+          <div class="btnrow"><button class="act" id="sgRun">New universe</button></div>
+        </div>
+        <div>
+          <div class="stats" id="sgStats"></div>
+          <div class="chartwrap">
+            <h4>Return per unit of risk by method</h4>
+            <div class="note">Averaged over 200 independent cross-sections of 600 stocks. Each book is scored on realised long-short return divided by the size of its positions, so a blend is not penalised simply for having offsetting positions cancel out.</div>
+            <div id="sgBars"></div>
+          </div>
+          <div class="chartwrap" style="margin-top:20px">
+            <h4>Combined IC as the signals converge</h4>
+            <div class="note">With perfectly correlated signals there is only one signal, and every combination method collapses to the same thing.</div>
+            <div id="sgRhoChart"></div>
+            <div class="legend">
+              <span style="color:var(--c1)"><i style="background:var(--c1)"></i>Optimal weights</span>
+              <span style="color:var(--c3)"><i style="background:var(--c3)"></i>Equal weights</span>
+              <span style="color:var(--c7)"><i style="background:var(--c7)"></i>Best single signal</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sidenote">On this data the two approaches come out close to level, and the blend sometimes edges ahead. That is worth sitting with: when returns are a clean linear function of the signals, a stock that is wonderful on one and terrible on another really does have an average expected return, so there is nothing for integration to fix. The advantage integration has in practice comes from things this model deliberately leaves out — it never buys a stock in one sleeve while selling it in another, so it pays less in trading; and real factor payoffs interact rather than add, so being extreme on the composite means more than being extreme on any single input. The combination gain that <em>is</em> visible here is a different one: weighting three imperfectly correlated signals beats picking the best one, and that gain is large and reliable.</div>
+    </div>
+
+    <div class="takeaway">
+      <p><strong>How to read a factor paper after this module:</strong> ask how many specifications were run before this one was reported, ask whether the valuation spread was already stretched over the sample, ask what the strategy's exposure looks like on characteristics nobody mentioned, and ask what the result does when the rebalance frequency or the universe changes. A factor that survives all four is worth owning. Most do not get past the first.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Module 6 · MScFE 652 Portfolio Management · interactive companion. Every computation on this page runs client-side in your browser; nothing is sent anywhere.</div>
+</footer>
+<script>
+"use strict";
+/* ============================================================
+   Core utilities
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const clamp = (x,a,b) => Math.min(b, Math.max(a, x));
+const pct = (x,d=1) => (x*100).toFixed(d) + "%";
+const num = (x,d=2) => (Math.abs(x)<1e-12?0:x).toFixed(d);
+const REDRAW = [];
+
+/* seeded RNG */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function gaussFactory(rng){let sp=null;return function(){if(sp!==null){const v=sp;sp=null;return v;}let u=0,v=0,s=0;do{u=rng()*2-1;v=rng()*2-1;s=u*u+v*v;}while(s===0||s>=1);const m=Math.sqrt(-2*Math.log(s)/s);sp=v*m;return u*m;};}
+
+/* linear algebra */
+function zeros(n){return new Array(n).fill(0);}
+function matZeros(n,m){return Array.from({length:n},()=>zeros(m));}
+function matVec(A,x){const n=A.length;const y=zeros(n);for(let i=0;i<n;i++){let s=0;for(let j=0;j<x.length;j++)s+=A[i][j]*x[j];y[i]=s;}return y;}
+function dot(a,b){let s=0;for(let i=0;i<a.length;i++)s+=a[i]*b[i];return s;}
+function quad(A,x){return dot(x,matVec(A,x));}
+function covFromCorrVol(C,v){const n=v.length;const S=matZeros(n,n);for(let i=0;i<n;i++)for(let j=0;j<n;j++)S[i][j]=C[i][j]*v[i]*v[j];return S;}
+function inverse(A){
+  const n=A.length;const M=A.map((r,i)=>r.concat(zeros(n).map((_,j)=>i===j?1:0)));
+  for(let c=0;c<n;c++){
+    let piv=c;for(let r=c+1;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[piv][c]))piv=r;
+    if(Math.abs(M[piv][c])<1e-12){M[c][c]+=1e-10;piv=c;}
+    [M[c],M[piv]]=[M[piv],M[c]];
+    const d=M[c][c];for(let j=0;j<2*n;j++)M[c][j]/=d;
+    for(let r=0;r<n;r++){if(r===c)continue;const f=M[r][c];if(f===0)continue;for(let j=0;j<2*n;j++)M[r][j]-=f*M[c][j];}
+  }
+  return M.map(r=>r.slice(n));
+}
+function cholesky(A){
+  const n=A.length;const L=matZeros(n,n);
+  for(let i=0;i<n;i++)for(let j=0;j<=i;j++){
+    let s=0;for(let k=0;k<j;k++)s+=L[i][k]*L[j][k];
+    if(i===j)L[i][j]=Math.sqrt(Math.max(1e-12,A[i][i]-s));
+    else L[i][j]=(A[i][j]-s)/L[j][j];
+  }
+  return L;
+}
+/* symmetric eigen via Jacobi */
+function jacobiEigen(Ain,iters=100){
+  const n=Ain.length;const A=Ain.map(r=>r.slice());const V=matZeros(n,n);
+  for(let i=0;i<n;i++)V[i][i]=1;
+  for(let sweep=0;sweep<iters;sweep++){
+    let off=0;for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)off+=A[i][j]*A[i][j];
+    if(off<1e-14)break;
+    for(let p=0;p<n-1;p++)for(let q=p+1;q<n;q++){
+      if(Math.abs(A[p][q])<1e-15)continue;
+      const theta=(A[q][q]-A[p][p])/(2*A[p][q]);
+      const t=Math.sign(theta||1)/(Math.abs(theta)+Math.sqrt(theta*theta+1));
+      const c=1/Math.sqrt(t*t+1),s=t*c;
+      for(let k=0;k<n;k++){const akp=A[k][p],akq=A[k][q];A[k][p]=c*akp-s*akq;A[k][q]=s*akp+c*akq;}
+      for(let k=0;k<n;k++){const apk=A[p][k],aqk=A[q][k];A[p][k]=c*apk-s*aqk;A[q][k]=s*apk+c*aqk;}
+      for(let k=0;k<n;k++){const vkp=V[k][p],vkq=V[k][q];V[k][p]=c*vkp-s*vkq;V[k][q]=s*vkp+c*vkq;}
+    }
+  }
+  const vals=A.map((r,i)=>r[i]);
+  const idx=vals.map((v,i)=>i).sort((a,b)=>vals[b]-vals[a]);
+  return {values:idx.map(i=>vals[i]), vectors:idx.map(i=>V.map(r=>r[i]))};
+}
+function quantile(sorted,p){
+  const i=(sorted.length-1)*p, lo=Math.floor(i), hi=Math.ceil(i);
+  return sorted[lo]+(sorted[hi]-sorted[lo])*(i-lo);
+}
+
+/* ============================================================
+   Statistics, regression, trees
+   ============================================================ */
+function erf(x){
+  const s=Math.sign(x);x=Math.abs(x);
+  const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;
+  const t=1/(1+p*x);
+  const y=1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);
+  return s*y;
+}
+const normCdf = x => 0.5*(1+erf(x/Math.SQRT2));
+const normPdf = x => Math.exp(-0.5*x*x)/Math.sqrt(2*Math.PI);
+function normInv(p){
+  p=clamp(p,1e-12,1-1e-12);
+  const a=[-39.69683028665376,220.9460984245205,-275.9285104469687,138.3577518672690,-30.66479806614716,2.506628277459239];
+  const b=[-54.47609879822406,161.5858368580409,-155.6989798598866,66.80131188771972,-13.28068155288572];
+  const c=[-0.007784894002430293,-0.3223964580411365,-2.400758277161838,-2.549732539343734,4.374664141464968,2.938163982698783];
+  const d=[0.007784695709041462,0.3224671290700398,2.445134137142996,3.754408661907416];
+  const pl=0.02425;let q,r;
+  if(p<pl){q=Math.sqrt(-2*Math.log(p));return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+  if(p>1-pl){q=Math.sqrt(-2*Math.log(1-p));return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1);}
+  q=p-0.5;r=q*q;
+  return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+}
+function mean(a){return a.reduce((x,y)=>x+y,0)/a.length;}
+function sd(a){const m=mean(a);return Math.sqrt(a.reduce((x,y)=>x+(y-m)*(y-m),0)/Math.max(1,a.length-1));}
+function corr(a,b){
+  const ma=mean(a),mb=mean(b);let n=0,da=0,db=0;
+  for(let i=0;i<a.length;i++){n+=(a[i]-ma)*(b[i]-mb);da+=(a[i]-ma)**2;db+=(b[i]-mb)**2;}
+  return n/Math.sqrt(Math.max(1e-18,da*db));
+}
+function zscore(a){const m=mean(a),s=sd(a)||1;return a.map(x=>(x-m)/s);}
+function winsorize(a,k){
+  const s=a.slice().sort((x,y)=>x-y);
+  const lo=quantile(s,k),hi=quantile(s,1-k);
+  return a.map(x=>clamp(x,lo,hi));
+}
+function ranks(a){
+  const idx=a.map((v,i)=>i).sort((i,j)=>a[i]-a[j]);
+  const r=zeros(a.length);idx.forEach((id,k)=>r[id]=k/(a.length-1)-0.5);
+  return r;
+}
+/* ridge regression with intercept handled by centring */
+function ridge(X,y,lam){
+  const T=X.length,K=X[0].length;
+  const xm=zeros(K);for(let j=0;j<K;j++){let s=0;for(let t=0;t<T;t++)s+=X[t][j];xm[j]=s/T;}
+  const ym=mean(y);
+  const A=matZeros(K,K),bvec=zeros(K);
+  for(let j=0;j<K;j++){
+    for(let k=j;k<K;k++){let s=0;for(let t=0;t<T;t++)s+=(X[t][j]-xm[j])*(X[t][k]-xm[k]);A[j][k]=A[k][j]=s;}
+    let s=0;for(let t=0;t<T;t++)s+=(X[t][j]-xm[j])*(y[t]-ym);bvec[j]=s;
+  }
+  for(let j=0;j<K;j++)A[j][j]+=lam*T;
+  const beta=matVec(inverse(A),bvec);
+  let a0=ym;for(let j=0;j<K;j++)a0-=beta[j]*xm[j];
+  return {beta,intercept:a0};
+}
+function predict(m,X){return X.map(r=>m.intercept+dot(m.beta,r));}
+function r2(yTrue,yHat){
+  const m=mean(yTrue);let ss=0,tt=0;
+  for(let i=0;i<yTrue.length;i++){ss+=(yTrue[i]-yHat[i])**2;tt+=(yTrue[i]-m)**2;}
+  return 1-ss/Math.max(1e-18,tt);
+}
+/* depth-limited CART regression tree */
+function growTree(X,y,depth,minLeaf){
+  const K=X[0].length;
+  function build(idx,d){
+    const ys=idx.map(i=>y[i]);
+    const node={value:mean(ys),n:idx.length};
+    if(d>=depth||idx.length<2*minLeaf)return node;
+    let best=null;
+    for(let j=0;j<K;j++){
+      const ord=idx.slice().sort((a,b)=>X[a][j]-X[b][j]);
+      let sl=0,nl=0;const tot=ys.reduce((a,b)=>a+b,0),n=idx.length;
+      for(let p=0;p<n-1;p++){
+        sl+=y[ord[p]];nl++;
+        if(nl<minLeaf||n-nl<minLeaf)continue;
+        if(X[ord[p]][j]===X[ord[p+1]][j])continue;
+        const gain=sl*sl/nl+(tot-sl)*(tot-sl)/(n-nl)-tot*tot/n;
+        if(!best||gain>best.gain)best={gain,j,thr:(X[ord[p]][j]+X[ord[p+1]][j])/2};
+      }
+    }
+    if(!best)return node;
+    const L=idx.filter(i=>X[i][best.j]<=best.thr), R=idx.filter(i=>X[i][best.j]>best.thr);
+    if(!L.length||!R.length)return node;
+    node.j=best.j;node.thr=best.thr;node.left=build(L,d+1);node.right=build(R,d+1);
+    return node;
+  }
+  return build(X.map((_,i)=>i),0);
+}
+function treePredict(node,x){
+  while(node.left){node=x[node.j]<=node.thr?node.left:node.right;}
+  return node.value;
+}
+
+/* ============================================================
+   SVG chart helpers
+   ============================================================ */
+const NS="http://www.w3.org/2000/svg";
+function E(tag,attrs,text){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(text!=null)e.textContent=text;return e;}
+function newSvg(host,w,h){
+  host.innerHTML="";
+  const s=E("svg",{viewBox:`0 0 ${w} ${h}`,class:"chart",preserveAspectRatio:"xMidYMid meet",role:"img"});
+  host.appendChild(s);return s;
+}
+function niceTicks(lo,hi,n){
+  if(!isFinite(lo)||!isFinite(hi)||hi<=lo)return [lo,hi];
+  const span=hi-lo, raw=span/n, mag=Math.pow(10,Math.floor(Math.log10(raw)));
+  const norm=raw/mag; const step=(norm<1.5?1:norm<3?2:norm<7?5:10)*mag;
+  const out=[];for(let v=Math.ceil(lo/step)*step; v<=hi+step*1e-9; v+=step)out.push(+v.toFixed(10));
+  return out;
+}
+
+/* generic line / area plot */
+function linePlot(host,cfg){
+  const W=cfg.width||660, H=cfg.height||300;
+  const m=Object.assign({l:52,r:14,t:12,b:38},cfg.margin||{});
+  const svg=newSvg(host,W,H);
+  const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  const logY=!!cfg.logY;
+  let xs=[],ys=[];
+  cfg.series.forEach(s=>s.points.forEach(p=>{xs.push(p[0]);ys.push(p[1]);}));
+  (cfg.extraY||[]).forEach(v=>ys.push(v));
+  let x0=cfg.xmin!=null?cfg.xmin:Math.min(...xs), x1=cfg.xmax!=null?cfg.xmax:Math.max(...xs);
+  let y0=cfg.ymin!=null?cfg.ymin:Math.min(...ys), y1=cfg.ymax!=null?cfg.ymax:Math.max(...ys);
+  if(y1===y0){y1=y0+1;}
+  if(logY){y0=Math.max(y0,1e-6);}
+  const pad=(y1-y0)*0.08; if(cfg.ymin==null)y0-=pad; if(cfg.ymax==null)y1+=pad;
+  const X=v=>m.l+(v-x0)/(x1-x0)*iw;
+  const Y=logY? (v=>m.t+ih-(Math.log(Math.max(v,1e-9))-Math.log(y0))/(Math.log(y1)-Math.log(y0))*ih)
+              : (v=>m.t+ih-(v-y0)/(y1-y0)*ih);
+
+  // grid + axes
+  const yt=logY?logTicks(y0,y1):niceTicks(y0,y1,cfg.yticks||5);
+  yt.forEach(v=>{
+    if(v<y0-1e-9||v>y1+1e-9)return;
+    svg.appendChild(E("line",{x1:m.l,x2:m.l+iw,y1:Y(v),y2:Y(v),class:"grid"}));
+    svg.appendChild(E("text",{x:m.l-7,y:Y(v)+3.5,"text-anchor":"end"},(cfg.yfmt||(d=>num(d,2)))(v)));
+  });
+  const xt=niceTicks(x0,x1,cfg.xticks||6);
+  xt.forEach(v=>{
+    if(v<x0-1e-9||v>x1+1e-9)return;
+    svg.appendChild(E("line",{x1:X(v),x2:X(v),y1:m.t+ih,y2:m.t+ih+4,class:"ax"}));
+    svg.appendChild(E("text",{x:X(v),y:m.t+ih+17,"text-anchor":"middle"},(cfg.xfmt||(d=>num(d,2)))(v)));
+  });
+  svg.appendChild(E("line",{x1:m.l,x2:m.l+iw,y1:m.t+ih,y2:m.t+ih,class:"ax"}));
+  svg.appendChild(E("line",{x1:m.l,x2:m.l,y1:m.t,y2:m.t+ih,class:"ax"}));
+  if(cfg.zeroLine&&y0<0&&y1>0)
+    svg.appendChild(E("line",{x1:m.l,x2:m.l+iw,y1:Y(0),y2:Y(0),stroke:"var(--ink-faint)","stroke-width":1,"stroke-dasharray":"3 3"}));
+
+  (cfg.bands||[]).forEach(b=>{
+    svg.appendChild(E("rect",{x:X(b.x0),y:m.t,width:Math.max(0,X(b.x1)-X(b.x0)),height:ih,fill:b.color||"var(--c7)",opacity:b.opacity||0.14}));
+  });
+
+  const cid="clip"+Math.random().toString(36).slice(2,9);
+  const defs=E("defs",{});
+  const cp=E("clipPath",{id:cid});
+  cp.appendChild(E("rect",{x:m.l,y:m.t-2,width:iw,height:ih+4}));
+  defs.appendChild(cp);svg.appendChild(defs);
+  const gseries=E("g",{"clip-path":"url(#"+cid+")"});
+  svg.appendChild(gseries);
+  cfg.series.forEach(s=>{
+    if(s.points.length<1)return;
+    const d=s.points.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(2)+" "+Y(p[1]).toFixed(2)).join(" ");
+    if(s.fill){
+      const base=Y(clamp(0,y0,y1));
+      gseries.appendChild(E("path",{d:d+` L ${X(s.points[s.points.length-1][0])} ${base} L ${X(s.points[0][0])} ${base} Z`,fill:s.color,opacity:s.fillOpacity||0.12,stroke:"none"}));
+    }
+    gseries.appendChild(E("path",{d,fill:"none",stroke:s.color,"stroke-width":s.width||2,"stroke-dasharray":s.dash||"none",opacity:s.opacity||1,"stroke-linejoin":"round","stroke-linecap":"round"}));
+  });
+  (cfg.vlines||[]).forEach(v=>{
+    svg.appendChild(E("line",{x1:X(v.x),x2:X(v.x),y1:m.t,y2:m.t+ih,stroke:v.color,"stroke-width":v.width||1.5,"stroke-dasharray":v.dash||"4 4"}));
+    if(v.label)svg.appendChild(E("text",{x:X(v.x),y:m.t-2,"text-anchor":"middle",fill:v.color,class:"val"},v.label));
+  });
+  (cfg.hlines||[]).forEach(v=>{
+    svg.appendChild(E("line",{x1:m.l,x2:m.l+iw,y1:Y(v.y),y2:Y(v.y),stroke:v.color,"stroke-width":1,"stroke-dasharray":v.dash||"4 4"}));
+  });
+  (cfg.dots||[]).forEach(p=>{
+    svg.appendChild(E("circle",{cx:X(p.x),cy:Y(p.y),r:p.r||4,fill:p.color,stroke:"var(--bg-raise)","stroke-width":1.5}));
+    if(p.label)svg.appendChild(E("text",{x:X(p.x),y:Y(p.y)-9,"text-anchor":"middle",class:"val",fill:p.color},p.label));
+  });
+  if(cfg.xlabel)svg.appendChild(E("text",{x:m.l+iw/2,y:H-3,"text-anchor":"middle",class:"axtitle"},cfg.xlabel));
+  if(cfg.ylabel)svg.appendChild(E("text",{x:12,y:m.t+ih/2,"text-anchor":"middle",class:"axtitle",transform:`rotate(-90 12 ${m.t+ih/2})`},cfg.ylabel));
+  return svg;
+}
+function logTicks(lo,hi){
+  const out=[];const a=Math.floor(Math.log10(lo)),b=Math.ceil(Math.log10(hi));
+  for(let e=a;e<=b;e++)for(const mlt of [1,2,5]){const v=mlt*Math.pow(10,e);if(v>=lo&&v<=hi)out.push(v);}
+  return out.length?out:[lo,hi];
+}
+
+/* grouped bar chart */
+function barChart(host,cfg){
+  const cats=cfg.categories, groups=cfg.series;
+  const W=cfg.width||660, H=cfg.height||(cfg.compact?190:270);
+  const m=Object.assign({l:50,r:12,t:14,b:cfg.rotate?54:34},cfg.margin||{});
+  const svg=newSvg(host,W,H);
+  const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  let vmax=cfg.ymax!=null?cfg.ymax:Math.max(1e-9,...groups.flatMap(g=>g.values.map(v=>v)));
+  let vmin=cfg.ymin!=null?cfg.ymin:Math.min(0,...groups.flatMap(g=>g.values));
+  const Y=v=>m.t+ih-(v-vmin)/(vmax-vmin)*ih;
+  niceTicks(vmin,vmax,4).forEach(v=>{
+    if(v<vmin-1e-9||v>vmax+1e-9)return;
+    svg.appendChild(E("line",{x1:m.l,x2:m.l+iw,y1:Y(v),y2:Y(v),class:"grid"}));
+    svg.appendChild(E("text",{x:m.l-7,y:Y(v)+3.5,"text-anchor":"end"},(cfg.yfmt||(d=>pct(d,0)))(v)));
+  });
+  svg.appendChild(E("line",{x1:m.l,x2:m.l+iw,y1:Y(clamp(0,vmin,vmax)),y2:Y(clamp(0,vmin,vmax)),class:"ax"}));
+  const bw=iw/cats.length, inner=bw*0.74, each=inner/groups.length;
+  cats.forEach((c,i)=>{
+    groups.forEach((g,k)=>{
+      const v=g.values[i]||0;
+      const x=m.l+i*bw+(bw-inner)/2+k*each;
+      const y=Math.min(Y(v),Y(0)), h=Math.abs(Y(v)-Y(0));
+      svg.appendChild(E("rect",{x:x+0.6,y,width:Math.max(1,each-1.4),height:Math.max(0.5,h),fill:g.color,rx:2,opacity:g.opacity||1}));
+    });
+    const lx=m.l+i*bw+bw/2;
+    if(cfg.rotate)
+      svg.appendChild(E("text",{x:lx,y:m.t+ih+14,"text-anchor":"end",transform:`rotate(-38 ${lx} ${m.t+ih+14})`},c));
+    else
+      svg.appendChild(E("text",{x:lx,y:m.t+ih+15,"text-anchor":"middle"},c));
+  });
+  (cfg.hlines||[]).forEach(h=>{
+    svg.appendChild(E("line",{x1:m.l,x2:m.l+iw,y1:Y(h.y),y2:Y(h.y),stroke:h.color||"var(--ink-faint)","stroke-width":1,"stroke-dasharray":"4 4"}));
+    if(h.label)svg.appendChild(E("text",{x:m.l+iw-2,y:Y(h.y)-4,"text-anchor":"end",class:"val",fill:h.color||"var(--ink-faint)"},h.label));
+  });
+  if(cfg.ylabel)svg.appendChild(E("text",{x:12,y:m.t+ih/2,"text-anchor":"middle",class:"axtitle",transform:`rotate(-90 12 ${m.t+ih/2})`},cfg.ylabel));
+  return svg;
+}
+
+/* correlation heatmap */
+function heatmap(host,cfg){
+  const M=cfg.matrix, labels=cfg.labels, order=cfg.order||M.map((_,i)=>i);
+  const n=order.length;
+  const cell=Math.min(30, 300/n);
+  const pad=50;
+  const W=pad+n*cell+8, H=pad+n*cell+8;
+  const svg=newSvg(host,W,H);
+  const dark=document.documentElement.dataset.theme==="dark";
+  const col=v=>{
+    const t=clamp((v+1)/2,0,1);
+    // diverging: cool -> neutral -> warm
+    const neg=[61,90,147], mid=dark?[36,42,45]:[241,238,231], pos=[185,98,47];
+    let c;
+    if(t<0.5){const u=t/0.5;c=neg.map((x,i)=>x+(mid[i]-x)*u);}
+    else{const u=(t-0.5)/0.5;c=mid.map((x,i)=>x+(pos[i]-x)*u);}
+    return `rgb(${c.map(x=>Math.round(x)).join(",")})`;
+  };
+  order.forEach((oi,i)=>{
+    order.forEach((oj,j)=>{
+      svg.appendChild(E("rect",{x:pad+j*cell,y:pad+i*cell,width:cell-0.6,height:cell-0.6,fill:col(M[oi][oj]),rx:1.5}));
+    });
+    svg.appendChild(E("text",{x:pad-5,y:pad+i*cell+cell/2+3.2,"text-anchor":"end","font-size":Math.min(10,cell*0.52)},labels[oi]));
+    const tx=pad+i*cell+cell/2;
+    svg.appendChild(E("text",{x:tx,y:pad-6,"text-anchor":"start","font-size":Math.min(10,cell*0.52),transform:`rotate(-55 ${tx} ${pad-6})`},labels[oi]));
+  });
+  return svg;
+}
+
+/* histogram with a numeric x axis */
+function histogram(host,cfg){
+  const vals=cfg.values, nb=cfg.bins||30;
+  const W=cfg.width||660,H=cfg.height||250;
+  const m=Object.assign({l:50,r:14,t:14,b:38},cfg.margin||{});
+  const svg=newSvg(host,W,H);
+  const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  let x0=cfg.xmin!=null?cfg.xmin:Math.min(...vals), x1=cfg.xmax!=null?cfg.xmax:Math.max(...vals);
+  if(x1<=x0)x1=x0+1;
+  const counts=zeros(nb);
+  vals.forEach(v=>{const k=clamp(Math.floor((v-x0)/(x1-x0)*nb),0,nb-1);counts[k]++;});
+  const cmax=Math.max(1,...counts);
+  const X=v=>m.l+(v-x0)/(x1-x0)*iw;
+  const Y=c=>m.t+ih-c/cmax*ih;
+  niceTicks(0,cmax,4).forEach(c=>{
+    svg.appendChild(E("line",{x1:m.l,x2:m.l+iw,y1:Y(c),y2:Y(c),class:"grid"}));
+    svg.appendChild(E("text",{x:m.l-7,y:Y(c)+3.5,"text-anchor":"end"},cfg.yfmt?cfg.yfmt(c/vals.length):num(c,0)));
+  });
+  const bw=iw/nb;
+  counts.forEach((c,k)=>{
+    const xv=x0+(k+0.5)*(x1-x0)/nb;
+    const hot=cfg.highlight&&cfg.highlight(xv);
+    svg.appendChild(E("rect",{x:m.l+k*bw+0.5,y:Y(c),width:Math.max(0.8,bw-1),height:ih-(Y(c)-m.t),
+      fill:hot?(cfg.hotColor||"var(--c6)"):(cfg.color||"var(--c1)"),opacity:hot?0.95:(cfg.opacity||0.72),rx:1}));
+  });
+  svg.appendChild(E("line",{x1:m.l,x2:m.l+iw,y1:m.t+ih,y2:m.t+ih,class:"ax"}));
+  niceTicks(x0,x1,cfg.xticks||6).forEach(v=>{
+    if(v<x0-1e-9||v>x1+1e-9)return;
+    svg.appendChild(E("line",{x1:X(v),x2:X(v),y1:m.t+ih,y2:m.t+ih+4,class:"ax"}));
+    svg.appendChild(E("text",{x:X(v),y:m.t+ih+17,"text-anchor":"middle"},(cfg.xfmt||(d=>num(d,2)))(v)));
+  });
+  (cfg.vlines||[]).forEach(v=>{
+    if(v.x<x0||v.x>x1)return;
+    svg.appendChild(E("line",{x1:X(v.x),x2:X(v.x),y1:m.t,y2:m.t+ih,stroke:v.color,"stroke-width":v.width||1.6,"stroke-dasharray":v.dash||"4 4"}));
+    if(v.label)svg.appendChild(E("text",{x:X(v.x),y:m.t-2,"text-anchor":v.anchor||"middle",fill:v.color,class:"val"},v.label));
+  });
+  if(cfg.xlabel)svg.appendChild(E("text",{x:m.l+iw/2,y:H-3,"text-anchor":"middle",class:"axtitle"},cfg.xlabel));
+  if(cfg.ylabel)svg.appendChild(E("text",{x:12,y:m.t+ih/2,"text-anchor":"middle",class:"axtitle",transform:`rotate(-90 12 ${m.t+ih/2})`},cfg.ylabel));
+  return svg;
+}
+
+/* horizontal stacked bars, one row per item */
+function stackedRows(host,cfg){
+  const rows=cfg.rows;
+  const W=cfg.width||660, rowH=cfg.rowH||30;
+  const m=Object.assign({l:cfg.labelW||104,r:58,t:10,b:26},cfg.margin||{});
+  const H=m.t+m.b+rows.length*rowH;
+  const svg=newSvg(host,W,H);
+  const iw=W-m.l-m.r;
+  let lo=0,hi=0;
+  rows.forEach(r=>{let pos=0,neg=0;r.parts.forEach(p=>{if(p.v>=0)pos+=p.v;else neg+=p.v;});lo=Math.min(lo,neg);hi=Math.max(hi,pos);});
+  const span=(hi-lo)||1;
+  const X=v=>m.l+(v-lo)/span*iw;
+  svg.appendChild(E("line",{x1:X(0),x2:X(0),y1:m.t,y2:m.t+rows.length*rowH,class:"ax"}));
+  rows.forEach((r,i)=>{
+    const y=m.t+i*rowH+rowH*0.18, h=rowH*0.64;
+    let cp=0,cn=0;
+    r.parts.forEach(p=>{
+      let x;
+      if(p.v>=0){x=X(cp);cp+=p.v;}
+      else{cn+=p.v;x=X(cn);}
+      const w=Math.abs(X(p.v)-X(0));
+      svg.appendChild(E("rect",{x:p.v>=0?x:x,y,width:Math.max(0.6,w),height:h,fill:p.color,rx:2,opacity:p.opacity||1}));
+    });
+    svg.appendChild(E("text",{x:m.l-8,y:y+h/2+3.6,"text-anchor":"end","font-size":11.5},r.label));
+    const tot=r.total!=null?r.total:r.parts.reduce((a,p)=>a+p.v,0);
+    svg.appendChild(E("text",{x:W-m.r+6,y:y+h/2+3.6,"text-anchor":"start",class:"val"},(cfg.fmt||(v=>pct(v,1)))(tot)));
+  });
+  niceTicks(lo,hi,5).forEach(v=>{
+    svg.appendChild(E("text",{x:X(v),y:H-8,"text-anchor":"middle"},(cfg.fmt||(d=>pct(d,0)))(v)));
+  });
+  return svg;
+}
+
+/* value surface over a 2-D grid */
+function surface(host,cfg){
+  const G=cfg.grid, n=G.length;
+  const W=cfg.width||210, H=cfg.height||210;
+  const pad={l:26,r:6,t:6,b:22};
+  const svg=newSvg(host,W,H);
+  const cw=(W-pad.l-pad.r)/n, ch=(H-pad.t-pad.b)/n;
+  const lo=cfg.min, hi=cfg.max;
+  const dark=document.documentElement.dataset.theme==="dark";
+  const neg=[61,90,147], mid=dark?[36,42,45]:[241,238,231], pos=[122,63,109];
+  const col=v=>{
+    const t=clamp((v-lo)/((hi-lo)||1),0,1);
+    let c;
+    if(t<0.5){const u=t/0.5;c=neg.map((x,i)=>x+(mid[i]-x)*u);}
+    else{const u=(t-0.5)/0.5;c=mid.map((x,i)=>x+(pos[i]-x)*u);}
+    return `rgb(${c.map(x=>Math.round(x)).join(",")})`;
+  };
+  for(let i=0;i<n;i++)for(let j=0;j<n;j++)
+    svg.appendChild(E("rect",{x:pad.l+j*cw,y:pad.t+(n-1-i)*ch,width:cw+0.5,height:ch+0.5,fill:col(G[i][j])}));
+  svg.appendChild(E("text",{x:pad.l+(W-pad.l-pad.r)/2,y:H-6,"text-anchor":"middle","font-size":10.5},cfg.xlabel||""));
+  svg.appendChild(E("text",{x:11,y:pad.t+(H-pad.t-pad.b)/2,"text-anchor":"middle","font-size":10.5,
+    transform:`rotate(-90 11 ${pad.t+(H-pad.t-pad.b)/2})`},cfg.ylabel||""));
+  return svg;
+}
+</script>
+<script>
+"use strict";
+/* ============================================================
+   Theme + nav
+   ============================================================ */
+(function(){
+  const root=document.documentElement, btn=$("themebtn");
+  const saved=(function(){try{return localStorage.getItem("m6theme");}catch(e){return null;}})();
+  const prefersDark=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;
+  setTheme(saved||(prefersDark?"dark":"light"));
+  function setTheme(t){
+    root.dataset.theme=t;
+    btn.textContent=t==="dark"?"Light mode":"Dark mode";
+    try{localStorage.setItem("m6theme",t);}catch(e){}
+    REDRAW.forEach(f=>{try{f();}catch(e){}});
+  }
+  btn.addEventListener("click",()=>setTheme(root.dataset.theme==="dark"?"light":"dark"));
+  const links=[...document.querySelectorAll("#nav a")];
+  const secs=links.map(a=>$(a.getAttribute("href").slice(1)));
+  const io=new IntersectionObserver(es=>{es.forEach(e=>{
+    if(e.isIntersecting){const i=secs.indexOf(e.target);links.forEach((l,k)=>l.classList.toggle("on",k===i));}
+  });},{rootMargin:"-45% 0px -50% 0px"});
+  secs.forEach(s=>s&&io.observe(s));
+})();
+
+/* helper for pill toggle groups */
+function pillGroup(id,onChange){
+  const host=$(id);
+  host.addEventListener("click",e=>{
+    const b=e.target.closest("button[data-v]"); if(!b)return;
+    [...host.querySelectorAll("button[data-v]")].forEach(x=>x.classList.toggle("on",x===b));
+    onChange(b.dataset.v);
+  });
+  return ()=>host.querySelector("button.on").dataset.v;
+}
+
+/* ============================================================
+   LESSON 1a — multiple testing
+   ============================================================ */
+(function(){
+  const M=$("mtM"), Pi=$("mtPi"), SR=$("mtSR"), Ty=$("mtT"), C=$("mtC");
+  const tailNull=c=>2*(1-normCdf(c));
+  const power=(c,lam)=>(1-normCdf(c-lam))+normCdf(-c-lam);
+
+  function counts(c){
+    const m=Math.round(Math.pow(10,+M.value)), pi=+Pi.value, lam=+SR.value*Math.sqrt(+Ty.value);
+    const fp=m*(1-pi)*tailNull(c), tp=m*pi*power(c,lam);
+    return {m,pi,lam,fp,tp,fdr:(fp+tp)>0?fp/(fp+tp):0,pow:power(c,lam)};
+  }
+  function fdrThreshold(target){
+    let lo=1.0,hi=8;
+    for(let i=0;i<60;i++){const mid=(lo+hi)/2;if(counts(mid).fdr>target)lo=mid;else hi=mid;}
+    return hi;
+  }
+  function update(){
+    const m=Math.round(Math.pow(10,+M.value)), pi=+Pi.value, sr=+SR.value, ty=+Ty.value, c=+C.value;
+    $("mtMv").textContent=m; $("mtPiv").textContent=pct(pi,0);
+    $("mtSRv").textContent=num(sr,2); $("mtTv").textContent=ty; $("mtCv").textContent=num(c,2);
+    const k=counts(c), lam=k.lam;
+    const bonf=normInv(1-0.025/m);
+    const need=fdrThreshold(0.05);
+    $("mtStats").innerHTML=[
+      ["Published as significant", Math.round(k.fp+k.tp), ""],
+      ["Of those, genuinely real", Math.round(k.tp), "good"],
+      ["Of those, pure noise", Math.round(k.fp), k.fp>k.tp?"hot":""],
+      ["False discovery rate", pct(k.fdr,0), k.fdr>0.2?"hot":"good"],
+      ["Power to detect a real factor", pct(k.pow,0), k.pow<0.5?"hot":"good"],
+      ["Bonferroni hurdle", num(bonf,2), ""],
+      ["Hurdle for 5% false discoveries", need>7.9?"unreachable":num(need,2), need>4?"hot":""],
+      ["Implied Sharpe at your hurdle", num(c/Math.sqrt(ty),2), ""]
+    ].map(x=>`<div class="${x[2]}"><b>${x[1]}</b><small>${x[0]}</small></div>`).join("");
+
+    const xmax=Math.max(5.2,lam+3.6);
+    const xs=[];for(let i=0;i<=320;i++)xs.push(-3.4+(xmax+3.4)*i/320);
+    linePlot($("mtChart"),{
+      height:250,
+      series:[
+        {points:xs.map(x=>[x,m*(1-pi)*normPdf(x)]),color:"var(--c7)",width:2,fill:true,fillOpacity:0.18},
+        {points:xs.map(x=>[x,m*pi*normPdf(x-lam)]),color:"var(--c2)",width:2,fill:true,fillOpacity:0.22}
+      ],
+      xmin:-3.4,xmax,ymin:0,
+      vlines:[{x:c,color:"var(--c6)",label:"t = "+num(c,2)},{x:lam,color:"var(--c2)",dash:"2 3",label:"true signal"}],
+      xfmt:v=>num(v,1), yfmt:v=>num(v,0),
+      xlabel:"t-statistic", ylabel:"factors per unit of t"
+    });
+
+    const cs=[];for(let i=0;i<=200;i++)cs.push(1.2+i/200*3.8);
+    linePlot($("mtFdrChart"),{
+      height:210,
+      series:[{points:cs.map(x=>[x,counts(x).fdr]),color:"var(--c1)",width:2.4,fill:true}],
+      ymin:0,ymax:1,xmin:1.2,xmax:5,
+      vlines:[{x:c,color:"var(--c6)",label:"your hurdle"}],
+      hlines:[{y:0.05,color:"var(--ink-faint)"}],
+      xfmt:v=>num(v,1), yfmt:v=>pct(v,0),
+      xlabel:"t-statistic hurdle", ylabel:"share of publications that are noise"
+    });
+  }
+  [M,Pi,SR,Ty,C].forEach(e=>e.addEventListener("input",update));
+  $("mtB196").addEventListener("click",()=>{C.value=1.96;update();});
+  $("mtB30").addEventListener("click",()=>{C.value=3.00;update();});
+  $("mtBonf").addEventListener("click",()=>{C.value=clamp(normInv(1-0.025/Math.round(Math.pow(10,+M.value))),1.2,5);update();});
+  $("mtFdr").addEventListener("click",()=>{C.value=clamp(fdrThreshold(0.05),1.2,5);update();});
+  REDRAW.push(update);update();
+})();
+
+/* ============================================================
+   LESSON 1b — backtest mining
+   ============================================================ */
+(function(){
+  const N=$("dmN"), T=$("dmT"), V=$("dmVol");
+  let seed=13579;
+  function update(){
+    const n=+N.value, t=+T.value, vol=+V.value;
+    $("dmNv").textContent=n; $("dmTv").textContent=t; $("dmVolv").textContent=pct(vol,1);
+    const g=gaussFactory(mulberry32(seed));
+    const R=[], sh=[];
+    for(let i=0;i<n;i++){
+      const r=new Float64Array(t);
+      for(let k=0;k<t;k++)r[k]=g()*vol;
+      R.push(r);
+      let m=0;for(let k=0;k<t;k++)m+=r[k]/t;
+      let s=0;for(let k=0;k<t;k++)s+=(r[k]-m)**2;s=Math.sqrt(s/Math.max(1,t-1));
+      sh.push(m/s*Math.sqrt(12));
+    }
+    let best=0;for(let i=1;i<n;i++)if(sh[i]>sh[best])best=i;
+    const srt=sh.slice().sort((a,b)=>a-b);
+    const med=srt[Math.floor(n/2)];
+    let medIdx=0,bd=Infinity;for(let i=0;i<n;i++){const d=Math.abs(sh[i]-med);if(d<bd){bd=d;medIdx=i;}}
+    const tstat=sh[best]/Math.sqrt(12)*Math.sqrt(t);
+    const pSingle=2*(1-normCdf(Math.abs(tstat)));
+    const pFamily=1-Math.pow(1-pSingle,n);
+    const expMax=Math.sqrt(2*Math.log(Math.max(2,n)))*Math.sqrt(12/t);
+
+    $("dmStats").innerHTML=[
+      ["Best Sharpe found", num(sh[best],2), "hot"],
+      ["Its t-statistic", num(tstat,2), tstat>2?"hot":""],
+      ["p-value if tested once", pSingle<0.001?"<0.001":num(pSingle,3), pSingle<0.05?"hot":""],
+      ["p-value given "+n+" trials", num(pFamily,2), pFamily>0.2?"good":"hot"],
+      ["Expected best from noise", num(expMax,2), ""],
+      ["True Sharpe of every strategy", "0.00", "good"]
+    ].map(x=>`<div class="${x[2]}"><b>${x[1]}</b><small>${x[0]}</small></div>`).join("");
+
+    histogram($("dmHist"),{
+      values:sh, bins:Math.min(46,Math.max(12,Math.round(n/14))), height:210,
+      color:"var(--c1)", hotColor:"var(--c6)",
+      highlight:x=>Math.abs(x-sh[best])<(Math.max(...sh)-Math.min(...sh))/Math.min(46,Math.max(12,Math.round(n/14)))/1.6,
+      vlines:[{x:0,color:"var(--ink-faint)",dash:"3 3",label:"truth"}],
+      xfmt:v=>num(v,1), xlabel:"annualised Sharpe ratio over the backtest", ylabel:"strategies"
+    });
+
+    // out-of-sample continuation
+    const g2=gaussFactory(mulberry32(seed^0x5bf03635));
+    function path(idx){
+      const p=[[0,0]];let c=0;
+      for(let k=0;k<t;k++){c+=R[idx][k];p.push([k+1,c]);}
+      return p;
+    }
+    function oos(startVal){
+      const p=[[t,startVal]];let c=startVal;
+      for(let k=0;k<t;k++){c+=g2()*vol;p.push([t+k+1,c]);}
+      return p;
+    }
+    const pw=path(best), pm=path(medIdx);
+    const ow=oos(pw[pw.length-1][1]), om=oos(pm[pm.length-1][1]);
+    linePlot($("dmPath"),{
+      height:240,
+      series:[
+        {points:pm,color:"var(--c7)",width:1.6},
+        {points:om,color:"var(--c7)",width:1.6,dash:"4 3"},
+        {points:pw,color:"var(--c1)",width:2.4},
+        {points:ow,color:"var(--c1)",width:2.4,dash:"4 3"}
+      ],
+      xmin:0,xmax:2*t,zeroLine:true,
+      vlines:[{x:t,color:"var(--c6)",label:"selected here"}],
+      xfmt:v=>num(v,0), yfmt:v=>pct(v,0),
+      xlabel:"months", ylabel:"cumulative return"
+    });
+  }
+  [N,T,V].forEach(e=>e.addEventListener("input",update));
+  $("dmRun").addEventListener("click",()=>{seed=(seed*1664525+1013904223)>>>0;update();});
+  REDRAW.push(update);update();
+})();
+
+/* ============================================================
+   LESSON 1c — post-publication decay
+   ============================================================ */
+(function(){
+  const R=$("pdRet"), B=$("pdBias"), A=$("pdArb"), K=$("pdCost");
+  function update(){
+    const r=+R.value; let b=+B.value, a=+A.value, k=+K.value;
+    if(b+a>0.95){const s=0.95/(b+a);b*=s;a*=s;}
+    $("pdRetv").textContent=pct(r,1);$("pdBiasv").textContent=pct(+B.value,0);
+    $("pdArbv").textContent=pct(+A.value,0);$("pdCostv").textContent=pct(k,1);
+    const oos=r*(1-b), post=r*(1-b-a), net=post-k;
+    $("pdStats").innerHTML=[
+      ["Reported", pct(r,1), ""],
+      ["Out of sample, pre-publication", pct(oos,1), ""],
+      ["After publication", pct(post,1), ""],
+      ["Net of costs", pct(net,2), net<=0?"hot":"good"],
+      ["Share of the paper you keep", pct(Math.max(0,net/r),0), net/r<0.35?"hot":"good"]
+    ].map(x=>`<div class="${x[2]}"><b>${x[1]}</b><small>${x[0]}</small></div>`).join("");
+    const costPart=Math.min(k,Math.max(0,post));
+    stackedRows($("pdChart"),{
+      rowH:34,
+      rows:[
+        {label:"As reported", total:r, parts:[{v:r,color:"var(--c1)"}]},
+        {label:"Out of sample", total:oos, parts:[{v:oos,color:"var(--c1)"},{v:r*b,color:"var(--c7)"}]},
+        {label:"After publication", total:post, parts:[{v:post,color:"var(--c1)"},{v:r*b,color:"var(--c7)"},{v:r*a,color:"var(--c4)"}]},
+        {label:"Net of costs", total:net, parts:[{v:Math.max(0,post-k),color:"var(--c1)"},{v:costPart,color:"var(--c6)"},{v:r*b,color:"var(--c7)"},{v:r*a,color:"var(--c4)"}]}
+      ],
+      fmt:v=>pct(v,1)
+    });
+  }
+  [R,B,A,K].forEach(e=>e.addEventListener("input",update));
+  REDRAW.push(update);update();
+})();
+
+/* ============================================================
+   LESSON 2a — crowding cycle
+   ============================================================ */
+(function(){
+  const S=$("cwStruct"), F=$("cwFlow"), I=$("cwImpact"), Rv=$("cwRev");
+  let seed=2468;
+  const Q=80;
+  function update(){
+    const s=+S.value/4, eta=+F.value, phi=+I.value, th=+Rv.value;
+    $("cwStructv").textContent=pct(+S.value,1);$("cwFlowv").textContent=num(eta,2);
+    $("cwImpactv").textContent=num(phi,2);$("cwRevv").textContent=num(th,3);
+    const g=gaussFactory(mulberry32(seed));
+    let v=0,C=1,cum=0;
+    const rs=[],vs=[],cs=[],cums=[[0,1]],aums=[[0,1]],revs=[];
+    let dollarNum=0,dollarDen=0;
+    for(let t=0;t<Q;t++){
+      const trail=clamp(rs.length?mean(rs.slice(-4)):s,-0.4,0.4);
+      const flow=clamp(eta*C*trail,-0.25*C,0.25*C);
+      const dv=clamp(phi*(flow/Math.max(0.05,C))-th*v,-0.25,0.25);
+      const r=clamp(s+dv+g()*0.025,-0.6,0.6);
+      dollarNum+=C*r; dollarDen+=C;
+      v=clamp(v+dv,-2,2); C=clamp(C*(1+r)+flow,0.02,1e7);
+      cum=Math.max(-0.999,(1+cum)*(1+r)-1);
+      rs.push(r);vs.push(v);cs.push(C);revs.push(dv);
+      cums.push([t+1,1+cum]);aums.push([t+1,C]);
+    }
+    // rolling revaluation share of trailing 8-quarter return
+    const share=[];
+    for(let t=7;t<Q;t++){
+      let rr=0,dd=0;for(let k=t-7;k<=t;k++){rr+=rs[k];dd+=revs[k];}
+      share.push([t+1,Math.abs(rr)>1e-6?clamp(dd/rr,-1.5,1.5):0]);
+    }
+    const peak=Math.max(...cums.map(p=>p[1]));
+    let mdd=0,pk=0;cums.forEach(p=>{pk=Math.max(pk,p[1]);mdd=Math.min(mdd,p[1]/pk-1);});
+    const total=cums[Q][1]-1;
+    const structTotal=Math.pow(1+s,Q)-1;
+    const timeW=Math.pow(cums[Q][1],4/Q)-1;
+    const dollarW=dollarNum/Math.max(1e-9,dollarDen)*4;
+    $("cwStats").innerHTML=[
+      ["Peak valuation spread", num(Math.max(...vs),3), Math.max(...vs)>0.15?"hot":""],
+      ["Peak assets, multiple of start", num(Math.max(...cs),1)+"×", ""],
+      ["Worst drawdown", pct(mdd,0), mdd<-0.2?"hot":""],
+      ["Total return over 20 years", pct(total,0), ""],
+      ["Structural return alone", pct(structTotal,0), "good"],
+      ["Return to the average dollar", pct(dollarW,1), dollarW<timeW?"hot":"good"],
+      ["Return to a buy-and-hold investor", pct(timeW,1), ""]
+    ].map(x=>`<div class="${x[2]}"><b>${x[1]}</b><small>${x[0]}</small></div>`).join("");
+
+    const aumMax=Math.max(...aums.map(p=>p[1]));
+    linePlot($("cwChart"),{
+      height:240,
+      series:[
+        {points:cums,color:"var(--c1)",width:2.4},
+        {points:aums.map(p=>[p[0],p[1]/aumMax*peak]),color:"var(--c4)",width:2}
+      ],
+      xmin:0,xmax:Q,
+      xfmt:v=>num(v/4,0), yfmt:v=>num(v,1)+"×",
+      xlabel:"years", ylabel:"cumulative growth of 1"
+    });
+    linePlot($("cwVal"),{
+      height:220,
+      series:[
+        {points:vs.map((x,i)=>[i+1,x]),color:"var(--c3)",width:2.2,fill:true},
+        {points:share.map(p=>[p[0],p[1]*Math.max(0.02,Math.max(...vs))]),color:"var(--c6)",width:1.8}
+      ],
+      xmin:0,xmax:Q,zeroLine:true,
+      xfmt:v=>num(v/4,0), yfmt:v=>num(v,2),
+      xlabel:"years", ylabel:"valuation spread"
+    });
+  }
+  [S,F,I,Rv].forEach(e=>e.addEventListener("input",update));
+  $("cwRun").addEventListener("click",()=>{seed=(seed*1664525+1013904223)>>>0;update();});
+  REDRAW.push(update);update();
+})();
+
+/* ============================================================
+   LESSON 2b — unintended exposures
+   ============================================================ */
+(function(){
+  const SECT=["Financials","Technology","Industrials","Healthcare","Energy"];
+  const ST=$("nsSectorTilt"), ML=$("nsMomLink"), SL=$("nsSizeLink");
+  let seed=31415, sortMode="raw", weightMode="equal";
+  const getSort=pillGroup("nsSort",v=>{sortMode=v;update();});
+  const getWeight=pillGroup("nsWeight",v=>{weightMode=v;update();});
+  const NS=300;
+
+  function build(){
+    const tilt=+ST.value, ml=+ML.value, sl=+SL.value;
+    const g=gaussFactory(mulberry32(seed));
+    const rng=mulberry32(seed^0x9e3779b9);
+    const st=[];
+    for(let i=0;i<NS;i++){
+      const sec=Math.floor(rng()*SECT.length);
+      const secEff=(sec===0?tilt:(sec===1?-tilt*0.8:-tilt*0.05));
+      const v=g()+secEff;
+      const m=ml*v+Math.sqrt(Math.max(0,1-ml*ml))*g();
+      const sz=sl*v+Math.sqrt(Math.max(0,1-sl*sl))*g();
+      const bt=0.22*v+Math.sqrt(1-0.22*0.22)*g();
+      st.push({sec,v,m,sz,bt,cap:Math.exp(sz*0.9)});
+    }
+    const zv=zscore(st.map(s=>s.v)), zm=zscore(st.map(s=>s.m)),
+          zs=zscore(st.map(s=>s.sz)), zb=zscore(st.map(s=>s.bt));
+    st.forEach((s,i)=>{s.v=zv[i];s.m=zm[i];s.sz=zs[i];s.bt=zb[i];});
+    return st;
+  }
+  function score(st){
+    if(sortMode==="raw")return st.map(s=>s.v);
+    if(sortMode==="sector"){
+      const out=zeros(NS);
+      SECT.forEach((_,k)=>{
+        const idx=st.map((s,i)=>s.sec===k?i:-1).filter(i=>i>=0);
+        if(!idx.length)return;
+        const mv=mean(idx.map(i=>st[i].v));
+        idx.forEach(i=>out[i]=st[i].v-mv);
+      });
+      return out;
+    }
+    const X=st.map(s=>[s.m,s.sz,s.bt]);
+    const fit=ridge(X,st.map(s=>s.v),1e-6);
+    const yh=predict(fit,X);
+    return st.map((s,i)=>s.v-yh[i]);
+  }
+  function update(){
+    $("nsSectorTiltv").textContent=num(+ST.value,2);
+    $("nsMomLinkv").textContent=num(+ML.value,2).replace("-","\u2212");
+    $("nsSizeLinkv").textContent=num(+SL.value,2).replace("-","\u2212");
+    const st=build(), sc=score(st);
+    const ord=st.map((_,i)=>i).sort((a,b)=>sc[b]-sc[a]);
+    const q=Math.round(NS*0.2);
+    const longIdx=ord.slice(0,q), shortIdx=ord.slice(NS-q);
+    function legW(idx){
+      const w=weightMode==="cap"?idx.map(i=>st[i].cap):idx.map(()=>1);
+      const s=w.reduce((a,b)=>a+b,0);
+      return w.map(x=>x/s);
+    }
+    const lw=legW(longIdx), sw=legW(shortIdx);
+    function expo(key){
+      let l=0,s=0;
+      longIdx.forEach((i,k)=>l+=lw[k]*st[i][key]);
+      shortIdx.forEach((i,k)=>s+=sw[k]*st[i][key]);
+      return l-s;
+    }
+    const ex={value:expo("v"),momentum:expo("m"),size:expo("sz"),beta:expo("bt")};
+    const secNet=SECT.map((_,k)=>{
+      let l=0,s=0;
+      longIdx.forEach((i,j)=>{if(st[i].sec===k)l+=lw[j];});
+      shortIdx.forEach((i,j)=>{if(st[i].sec===k)s+=sw[j];});
+      return l-s;
+    });
+    const unint=Math.abs(ex.momentum)+Math.abs(ex.size)+Math.abs(ex.beta);
+    const maxSec=Math.max(...secNet.map(Math.abs));
+    $("nsStats").innerHTML=[
+      ["Intended value exposure", num(ex.value,2), "good"],
+      ["Largest unintended style", num(Math.max(Math.abs(ex.momentum),Math.abs(ex.size),Math.abs(ex.beta)),2), unint>0.6?"hot":""],
+      ["Unintended as share of total", pct(unint/(unint+Math.abs(ex.value)),0), unint/(unint+Math.abs(ex.value))>0.35?"hot":"good"],
+      ["Largest net sector bet", pct(maxSec,0), maxSec>0.25?"hot":"good"],
+      ["Names held on each side", q, ""]
+    ].map(x=>`<div class="${x[2]}"><b>${x[1]}</b><small>${x[0]}</small></div>`).join("");
+
+    barChart($("nsExp"),{
+      categories:["Value","Momentum","Size","Beta"], height:200,
+      series:[{values:[ex.value,ex.momentum,ex.size,ex.beta],color:"var(--c1)"}],
+      yfmt:v=>num(v,1), ylabel:"standard deviations"
+    });
+    const rects=[...$("nsExp").querySelectorAll("rect")];
+    rects.forEach((r,i)=>r.setAttribute("fill",i===0?"var(--c2)":"var(--c4)"));
+    barChart($("nsSec"),{
+      categories:SECT, height:200, rotate:true,
+      series:[{values:secNet,color:"var(--c3)"}],
+      yfmt:v=>pct(v,0), ylabel:"net weight"
+    });
+  }
+  [ST,ML,SL].forEach(e=>e.addEventListener("input",update));
+  $("nsRun").addEventListener("click",()=>{seed=(seed*1664525+1013904223)>>>0;update();});
+  REDRAW.push(update);update();
+})();
+</script>
+<script>
+"use strict";
+/* ============================================================
+   LESSON 3a — regularisation and the cost of a predictor
+   ============================================================ */
+(function(){
+  const K=$("mlK"), KT=$("mlTrue"), T=$("mlT"), R2=$("mlR2");
+  let seed=777;
+  const LAMS=(function(){const a=[];for(let i=0;i<24;i++)a.push(Math.pow(10,-4+i*(6/23)));return a;})();
+
+  function update(){
+    let k=+K.value, kt=Math.min(+KT.value,+K.value), t=+T.value, rsq=+R2.value;
+    $("mlKv").textContent=k;$("mlTruev").textContent=kt;$("mlTv").textContent=t;$("mlR2v").textContent=pct(rsq,1);
+    const g=gaussFactory(mulberry32(seed));
+    const beta=zeros(k);for(let j=0;j<kt;j++)beta[j]=1;
+    const sigNoise=Math.sqrt(kt*(1-rsq)/rsq);
+    function gen(n){
+      const X=matZeros(n,k), y=zeros(n);
+      for(let i=0;i<n;i++){let s=0;for(let j=0;j<k;j++){X[i][j]=g();s+=X[i][j]*beta[j];}y[i]=s+g()*sigNoise;}
+      return {X,y};
+    }
+    const tr=gen(t), te=gen(1200);
+    // precompute centred cross-products once
+    const xm=zeros(k);for(let j=0;j<k;j++){let s=0;for(let i=0;i<t;i++)s+=tr.X[i][j];xm[j]=s/t;}
+    const ym=mean(tr.y);
+    const A0=matZeros(k,k), b0=zeros(k);
+    for(let j=0;j<k;j++){
+      for(let l=j;l<k;l++){let s=0;for(let i=0;i<t;i++)s+=(tr.X[i][j]-xm[j])*(tr.X[i][l]-xm[l]);A0[j][l]=A0[l][j]=s;}
+      let s=0;for(let i=0;i<t;i++)s+=(tr.X[i][j]-xm[j])*(tr.y[i]-ym);b0[j]=s;
+    }
+    const curveIn=[],curveOut=[];let bestI=0,bestV=-9;
+    const norms=[];
+    LAMS.forEach((lam,q)=>{
+      const A=A0.map(r=>r.slice());
+      for(let j=0;j<k;j++)A[j][j]+=lam*t;
+      const bt=matVec(inverse(A),b0);
+      let a0=ym;for(let j=0;j<k;j++)a0-=bt[j]*xm[j];
+      const m={beta:bt,intercept:a0};
+      const ri=r2(tr.y,predict(m,tr.X)), ro=r2(te.y,predict(m,te.X));
+      curveIn.push([Math.log10(lam),ri]);curveOut.push([Math.log10(lam),ro]);
+      norms.push(Math.sqrt(dot(bt,bt)));
+      if(ro>bestV){bestV=ro;bestI=q;}
+    });
+
+    const olsOut=curveOut[0][1];
+    $("mlStats").innerHTML=[
+      ["Predictors per observation", num(k/t,2), k/t>0.25?"hot":"good"],
+      ["True R²", pct(rsq,1), ""],
+      ["Least squares, out of sample", pct(olsOut,1), olsOut<0?"hot":""],
+      ["Best ridge, out of sample", pct(bestV,1), bestV>0?"good":"hot"],
+      ["Penalty at the optimum", LAMS[bestI].toExponential(1), ""],
+      ["Coefficient shrinkage there", pct(1-norms[bestI]/Math.max(1e-9,norms[0]),0), ""]
+    ].map(x=>`<div class="${x[2]}"><b>${x[1]}</b><small>${x[0]}</small></div>`).join("");
+
+    const lo=Math.max(-0.6,Math.min(...curveOut.map(p=>p[1]))-0.03);
+    linePlot($("mlChart"),{
+      height:300,
+      series:[
+        {points:curveIn,color:"var(--c3)",width:2.2},
+        {points:curveOut,color:"var(--c1)",width:2.4,fill:true}
+      ],
+      ymin:lo, ymax:Math.max(0.05,Math.max(...curveIn.map(p=>p[1]))*1.05),
+      xmin:-4,xmax:2,zeroLine:true,
+      hlines:[{y:rsq,color:"var(--c2)"}],
+      vlines:[{x:curveOut[bestI][0],color:"var(--c6)",label:"best"}],
+      xfmt:v=>"10"+sup(v), yfmt:v=>pct(v,0),
+      xlabel:"ridge penalty λ", ylabel:"R²"
+    });
+  }
+  function sup(v){
+    const m={"-":"\u207b","0":"\u2070","1":"\u00b9","2":"\u00b2","3":"\u00b3","4":"\u2074","5":"\u2075","6":"\u2076","7":"\u2077","8":"\u2078","9":"\u2079"};
+    return String(Math.round(v)).split("").map(c=>m[c]||c).join("");
+  }
+  [K,KT,T,R2].forEach(e=>e.addEventListener("input",update));
+  $("mlRun").addEventListener("click",()=>{seed=(seed*1664525+1013904223)>>>0;update();});
+  REDRAW.push(update);update();
+})();
+
+/* ============================================================
+   LESSON 3b — nonlinearity
+   ============================================================ */
+(function(){
+  const G=$("nlGamma"), D=$("nlDepth"), T=$("nlT"), NZ=$("nlNoise");
+  let seed=24680;
+  const GRID=22;
+  function truth(x1,x2,gam){return 0.4*x1+0.4*x2+gam*x1*x2;}
+  function update(){
+    const gam=+G.value, depth=+D.value, t=+T.value, nz=+NZ.value;
+    $("nlGammav").textContent=num(gam,2);$("nlDepthv").textContent=depth;
+    $("nlTv").textContent=t;$("nlNoisev").textContent=num(nz,1)+"×";
+    const g=gaussFactory(mulberry32(seed));
+    const sigSd=Math.sqrt(0.32+gam*gam);
+    function gen(n){
+      const X=matZeros(n,4), y=zeros(n);
+      for(let i=0;i<n;i++){
+        for(let j=0;j<4;j++)X[i][j]=g();
+        y[i]=truth(X[i][0],X[i][1],gam)+g()*sigSd*nz;
+      }
+      return {X,y};
+    }
+    const tr=gen(t), te=gen(8000);
+    const lin=ridge(tr.X,tr.y,1e-4);
+    const inter=X=>X.map(r=>[r[0],r[1],r[2],r[3],r[0]*r[1],r[0]*r[2],r[1]*r[3],r[2]*r[3]]);
+    const linX=ridge(inter(tr.X),tr.y,1e-4);
+    const tree=growTree(tr.X,tr.y,depth,Math.max(5,Math.round(t/Math.pow(2,depth)/4)));
+    const rLin=r2(te.y,predict(lin,te.X));
+    const rInt=r2(te.y,predict(linX,inter(te.X)));
+    const rTree=r2(te.y,te.X.map(x=>treePredict(tree,x)));
+    const ceiling=1/(1+nz*nz);
+
+    $("nlStats").innerHTML=[
+      ["Best possible R²", pct(ceiling,1), ""],
+      ["Linear model", pct(rLin,1), rLin<rTree?"":"good"],
+      ["Linear with interactions", pct(rInt,1), ""],
+      ["Regression tree", pct(rTree,1), rTree>rLin?"good":"hot"],
+      ["Tree advantage over linear", pct(rTree-rLin,1), rTree>rLin?"good":"hot"]
+    ].map(x=>`<div class="${x[2]}"><b>${x[1]}</b><small>${x[0]}</small></div>`).join("");
+
+    const gt=matZeros(GRID,GRID), gl=matZeros(GRID,GRID), gtr=matZeros(GRID,GRID);
+    for(let i=0;i<GRID;i++)for(let j=0;j<GRID;j++){
+      const x2=-2+4*i/(GRID-1), x1=-2+4*j/(GRID-1);
+      gt[i][j]=truth(x1,x2,gam);
+      gl[i][j]=lin.intercept+lin.beta[0]*x1+lin.beta[1]*x2;
+      gtr[i][j]=treePredict(tree,[x1,x2,0,0]);
+    }
+    const all=[].concat(...gt,...gl,...gtr);
+    const lo=Math.min(...all), hi=Math.max(...all);
+    surface($("nlS1"),{grid:gt,min:lo,max:hi,xlabel:"value",ylabel:"momentum"});
+    surface($("nlS2"),{grid:gl,min:lo,max:hi,xlabel:"value",ylabel:"momentum"});
+    surface($("nlS3"),{grid:gtr,min:lo,max:hi,xlabel:"value",ylabel:"momentum"});
+
+    barChart($("nlBars"),{
+      categories:["Linear","With interactions","Tree","Ceiling"], height:200,
+      series:[{values:[rLin,rInt,rTree,ceiling],color:"var(--c1)"}],
+      yfmt:v=>pct(v,0), ylabel:"out-of-sample R²"
+    });
+    const rects=[...$("nlBars").querySelectorAll("rect")];
+    ["var(--c3)","var(--c4)","var(--c1)","var(--c7)"].forEach((c,i)=>{if(rects[i])rects[i].setAttribute("fill",c);});
+  }
+  [G,D,T,NZ].forEach(e=>e.addEventListener("input",update));
+  $("nlRun").addEventListener("click",()=>{seed=(seed*1664525+1013904223)>>>0;update();});
+  REDRAW.push(update);update();
+})();
+
+/* ============================================================
+   LESSON 3c — fundamental law
+   ============================================================ */
+(function(){
+  const R=$("flR2"), B=$("flBreadth"), TC=$("flTC"), C=$("flCost"), V=$("flVol");
+  function update(){
+    const r2v=+R.value, br=+B.value, tc=+TC.value, cost=+C.value, vol=+V.value;
+    $("flR2v").textContent=pct(r2v,2);$("flBreadthv").textContent=br;
+    $("flTCv").textContent=num(tc,2);$("flCostv").textContent=pct(cost,1);$("flVolv").textContent=pct(vol,1);
+    const ic=Math.sqrt(r2v);
+    const irG=b=>tc*ic*Math.sqrt(b);
+    const irN=b=>(irG(b)*vol-cost)/vol;
+    $("flStats").innerHTML=[
+      ["Information coefficient", num(ic,3), ""],
+      ["Gross information ratio", num(irG(br),2), ""],
+      ["Gross alpha", pct(irG(br)*vol,1), ""],
+      ["Net information ratio", num(irN(br),2), irN(br)<0.3?"hot":"good"],
+      ["Net alpha", pct(irN(br)*vol,1), irN(br)<=0?"hot":"good"],
+      ["Breadth needed for IR of 0.5", Math.round(Math.pow((0.5*vol+cost)/(tc*ic*vol),2)), ""]
+    ].map(x=>`<div class="${x[2]}"><b>${x[1]}</b><small>${x[0]}</small></div>`).join("");
+    const bs=[];for(let i=0;i<=160;i++)bs.push(12*Math.pow(6000/12,i/160));
+    linePlot($("flChart"),{
+      height:260,
+      series:[
+        {points:bs.map(b=>[Math.log10(b),irG(b)]),color:"var(--c3)",width:2,dash:"5 4"},
+        {points:bs.map(b=>[Math.log10(b),irN(b)]),color:"var(--c1)",width:2.4,fill:true}
+      ],
+      xmin:Math.log10(12),xmax:Math.log10(6000),zeroLine:true,
+      vlines:[{x:Math.log10(br),color:"var(--c6)",label:"your breadth"}],
+      hlines:[{y:0.5,color:"var(--ink-faint)"}],
+      xfmt:v=>num(Math.pow(10,v),0), yfmt:v=>num(v,1),
+      xlabel:"independent bets per year", ylabel:"information ratio"
+    });
+  }
+  [R,B,TC,C,V].forEach(e=>e.addEventListener("input",update));
+  REDRAW.push(update);update();
+})();
+
+/* ============================================================
+   LESSON 4a — construction lab
+   ============================================================ */
+(function(){
+  const CHOICES=[
+    {key:"universe",label:"Universe",opts:[
+      {v:"all",  t:"All listed stocks", ret:1.28, vol:1.12, turn:1.18},
+      {v:"exmic",t:"Excluding microcaps", ret:1.00, vol:1.00, turn:1.00},
+      {v:"large",t:"Large cap only", ret:0.68, vol:0.92, turn:0.88}]},
+    {key:"quantile",label:"Portfolio cut",opts:[
+      {v:"dec", t:"Deciles", ret:1.22, vol:1.16, turn:1.30},
+      {v:"qui", t:"Quintiles", ret:1.00, vol:1.00, turn:1.00},
+      {v:"ter", t:"Terciles", ret:0.76, vol:0.86, turn:0.78}]},
+    {key:"rebal",label:"Rebalance frequency",opts:[
+      {v:"m", t:"Monthly", ret:1.12, vol:1.00, turn:2.90},
+      {v:"q", t:"Quarterly", ret:1.00, vol:1.00, turn:1.00},
+      {v:"a", t:"Annually", ret:0.80, vol:1.03, turn:0.34}]},
+    {key:"weight",label:"Weighting",opts:[
+      {v:"eq",  t:"Equal weight", ret:1.12, vol:1.06, turn:1.22},
+      {v:"cap", t:"Cap weight", ret:1.00, vol:1.00, turn:1.00},
+      {v:"sig", t:"Signal tilted", ret:1.16, vol:1.10, turn:1.34}]},
+    {key:"neutral",label:"Neutralisation",opts:[
+      {v:"none",t:"None", ret:1.00, vol:1.18, turn:1.00},
+      {v:"sec", t:"Sector neutral", ret:0.96, vol:0.87, turn:1.10},
+      {v:"secb",t:"Sector and beta neutral", ret:0.91, vol:0.79, turn:1.20}]},
+    {key:"wins",label:"Outlier handling",opts:[
+      {v:"raw", t:"Raw scores", ret:0.93, vol:1.09, turn:1.05},
+      {v:"win", t:"Winsorised at 1%", ret:1.00, vol:1.00, turn:1.00}]},
+    {key:"lag",label:"Data lag",opts:[
+      {v:"l1", t:"One month", ret:1.09, vol:1.00, turn:1.06},
+      {v:"l6", t:"Six months", ret:0.90, vol:1.00, turn:0.94}]}
+  ];
+  const BASE={ret:0.040, vol:0.080, turn:1.20};
+  let pick=Object.fromEntries(CHOICES.map(c=>[c.key,c.opts[1]?c.opts[1].v:c.opts[0].v]));
+  pick.wins="win"; pick.lag="l1";
+
+  $("fcControls").innerHTML=CHOICES.map(c=>`
+    <div class="optgrp"><span>${c.label}</span>
+      <div class="toggles" data-grp="${c.key}">
+        ${c.opts.map(o=>`<button class="pill${o.v===pick[c.key]?" on":""}" data-v="${o.v}">${o.t}</button>`).join("")}
+      </div>
+    </div>`).join("")+`
+    <div class="ctl"><label for="fcCost">Cost per 100% of turnover <b id="fcCostv">40 bp</b></label><input type="range" id="fcCost" min="0" max="150" step="1" value="40"></div>`;
+
+  $("fcControls").addEventListener("click",e=>{
+    const b=e.target.closest("button[data-v]"); if(!b)return;
+    const grp=b.parentElement.dataset.grp;
+    [...b.parentElement.children].forEach(x=>x.classList.toggle("on",x===b));
+    pick[grp]=b.dataset.v; update();
+  });
+
+  function evaluate(combo,costRate){
+    let ret=BASE.ret, vol=BASE.vol, turn=BASE.turn;
+    CHOICES.forEach((c,i)=>{const o=c.opts[combo[i]];ret*=o.ret;vol*=o.vol;turn*=o.turn;});
+    const cost=turn*costRate;
+    return {ret,vol,turn,cost,gross:ret/vol,net:(ret-cost)/vol};
+  }
+  function enumerate(costRate){
+    const out=[];
+    (function rec(i,acc){
+      if(i===CHOICES.length){out.push({combo:acc.slice(),r:evaluate(acc,costRate)});return;}
+      for(let k=0;k<CHOICES[i].opts.length;k++){acc.push(k);rec(i+1,acc);acc.pop();}
+    })(0,[]);
+    return out;
+  }
+  function update(){
+    const costRate=+$("fcCost").value/10000;
+    $("fcCostv").textContent=$("fcCost").value+" bp";
+    const mine=CHOICES.map(c=>c.opts.findIndex(o=>o.v===pick[c.key]));
+    const all=enumerate(costRate);
+    const nets=all.map(a=>a.r.net);
+    const me=evaluate(mine,costRate);
+    const srt=nets.slice().sort((a,b)=>a-b);
+    const bestI=nets.indexOf(Math.max(...nets)), worstI=nets.indexOf(Math.min(...nets));
+    const rank=srt.filter(x=>x<me.net).length/nets.length;
+
+    $("fcStats").innerHTML=[
+      ["Your net Sharpe", num(me.net,2), me.net<0.3?"hot":"good"],
+      ["Your gross Sharpe", num(me.gross,2), ""],
+      ["Annual turnover", pct(me.turn,0), me.turn>2.5?"hot":""],
+      ["Cost drag", pct(me.cost,2), ""],
+      ["Percentile among all constructions", pct(rank,0), ""],
+      ["Spread, worst to best", num(Math.min(...nets),2)+" – "+num(Math.max(...nets),2), "hot"],
+      ["Constructions enumerated", nets.length, ""]
+    ].map(x=>`<div class="${x[2]}"><b>${x[1]}</b><small>${x[0]}</small></div>`).join("");
+
+    histogram($("fcHist"),{
+      values:nets, bins:40, height:230, color:"var(--c1)", hotColor:"var(--c6)",
+      highlight:x=>Math.abs(x-me.net)<(Math.max(...nets)-Math.min(...nets))/40/1.5,
+      vlines:[{x:0,color:"var(--ink-faint)",dash:"3 3"}],
+      xfmt:v=>num(v,1), xlabel:"net Sharpe ratio", ylabel:"constructions"
+    });
+
+    const cats=[],vals=[],cols=[];
+    CHOICES.forEach((c,ci)=>{
+      c.opts.forEach((o,oi)=>{
+        const sel=all.filter(a=>a.combo[ci]===oi);
+        cats.push(o.t);vals.push(mean(sel.map(a=>a.r.net)));
+        cols.push(pick[c.key]===o.v?"var(--c6)":"var(--c1)");
+      });
+    });
+    barChart($("fcEffect"),{
+      categories:cats, height:250, rotate:true, margin:{l:50,r:12,t:14,b:96},
+      series:[{values:vals,color:"var(--c1)"}],
+      hlines:[{y:mean(nets),color:"var(--ink-faint)",label:"average across all"}],
+      yfmt:v=>num(v,1), ylabel:"average net Sharpe"
+    });
+    [...$("fcEffect").querySelectorAll("rect")].forEach((r,i)=>{if(cols[i])r.setAttribute("fill",cols[i]);});
+
+    const rows=[
+      ["Your construction", me],
+      ["Best of all combinations", all[bestI].r],
+      ["Median combination", all[nets.indexOf(srt[Math.floor(nets.length/2)])].r],
+      ["Worst of all combinations", all[worstI].r]
+    ];
+    $("fcTable").querySelector("tbody").innerHTML=rows.map((r,i)=>
+      `<tr${i===0?' class="hl"':""}><td>${r[0]}</td><td>${num(r[1].gross,2)}</td><td>${pct(r[1].turn,0)}</td><td>${pct(r[1].cost,2)}</td><td>${num(r[1].net,2)}</td></tr>`).join("");
+  }
+  $("fcControls").addEventListener("input",e=>{if(e.target.id==="fcCost")update();});
+  REDRAW.push(update);update();
+})();
+
+/* ============================================================
+   LESSON 4b — signal combination
+   ============================================================ */
+(function(){
+  const SIG=[{n:"Value",ic:0.045},{n:"Momentum",ic:0.038},{n:"Quality",ic:0.030}];
+  const COL=["var(--c1)","var(--c3)","var(--c2)"];
+  let seed=8080;
+  $("sgControls").innerHTML=SIG.map((s,i)=>`
+    <div class="ctl"><label for="sg${i}"><span class="swatch" style="display:inline-block;background:${COL[i]};margin-right:6px"></span>${s.n} information coefficient <b id="sg${i}v"></b></label><input type="range" id="sg${i}" min="0" max="0.09" step="0.001" value="${s.ic}"></div>`).join("");
+  const RHO=$("sgRho");
+
+  function omega(rho){
+    const O=matZeros(3,3);
+    for(let i=0;i<3;i++)for(let j=0;j<3;j++)O[i][j]=i===j?1:rho;
+    return O;
+  }
+  function icCombined(w,ic,O){
+    const d=Math.sqrt(Math.max(1e-12,quad(O,w)));
+    return dot(w,ic)/d;
+  }
+  function update(){
+    const ic=SIG.map((_,i)=>{const v=+$("sg"+i).value;$("sg"+i+"v").textContent=num(v,3);return v;});
+    const rho=+RHO.value; $("sgRhov").textContent=num(rho,2);
+    const O=omega(rho), Oi=inverse(O);
+    const wOpt=matVec(Oi,ic);
+    const wEq=[1/3,1/3,1/3];
+    const icOpt=icCombined(wOpt,ic,O), icEq=icCombined(wEq,ic,O), icBest=Math.max(...ic);
+
+    // simulated cross-sections: one draw is far too noisy to rank the methods,
+    // so the comparison is averaged over many independent periods
+    const NS=600, PERIODS=200;
+    const L=cholesky(O), g=gaussFactory(mulberry32(seed));
+    const Q=clamp(dot(ic,matVec(Oi,ic)),0,0.95);
+    const wTrue=matVec(Oi,ic);
+    const q=Math.round(NS*0.2);
+    const names=["Best single signal","Blend three portfolios","Integrate, equal weights","Integrate, optimal weights"];
+    const acc=zeros(4);
+    const bestJ=ic.indexOf(icBest);
+    let mixedNames=0;
+    function quantileW(scores){
+      const ord=scores.map((_,i)=>i).sort((a,b)=>scores[b]-scores[a]);
+      const w=zeros(NS);
+      ord.slice(0,q).forEach(i=>w[i]+=1/q);
+      ord.slice(NS-q).forEach(i=>w[i]-=1/q);
+      return w;
+    }
+    for(let p=0;p<PERIODS;p++){
+      const S=matZeros(NS,3), rr=zeros(NS);
+      for(let i=0;i<NS;i++){
+        const z=[g(),g(),g()];
+        for(let a=0;a<3;a++){let s=0;for(let b2=0;b2<=a;b2++)s+=L[a][b2]*z[b2];S[i][a]=s;}
+        rr[i]=dot(wTrue,S[i])+g()*Math.sqrt(1-Q);
+      }
+      // every book is judged on return per unit of position size, so a blend is not
+      // penalised merely for having offsetting positions cancel out
+      const score=w=>{
+        const ret=w.reduce((a,x,i)=>a+x*rr[i],0);
+        const risk=Math.sqrt(w.reduce((a,x)=>a+x*x,0));
+        return ret/Math.max(1e-12,risk);
+      };
+      const zs=[0,1,2].map(j=>zscore(S.map(r=>r[j])));
+      const integ=zeros(NS).map((_,i)=>(zs[0][i]+zs[1][i]+zs[2][i])/3);
+      const integOpt=zeros(NS).map((_,i)=>wOpt[0]*zs[0][i]+wOpt[1]*zs[1][i]+wOpt[2]*zs[2][i]);
+      const mixed=zeros(NS);
+      [0,1,2].forEach(j=>{const w=quantileW(zs[j]);for(let i=0;i<NS;i++)mixed[i]+=w[i]/3;});
+      if(p===0)mixedNames=mixed.filter(x=>Math.abs(x)>1e-9).length;
+      acc[0]+=score(quantileW(zs[bestJ]))/PERIODS;
+      acc[1]+=score(mixed)/PERIODS;
+      acc[2]+=score(quantileW(integ))/PERIODS;
+      acc[3]+=score(quantileW(integOpt))/PERIODS;
+    }
+    const vals=acc;
+    const cols=["var(--c7)","var(--c4)","var(--c3)","var(--c1)"];
+
+    $("sgStats").innerHTML=[
+      ["Optimal combined IC", num(icOpt,3), "good"],
+      ["Equal-weight combined IC", num(icEq,3), ""],
+      ["Best single signal IC", num(icBest,3), ""],
+      ["Gain from combining", pct(icOpt/Math.max(1e-9,icBest)-1,0), ""],
+      ["Integrated over blended", pct(vals[2]/Math.max(1e-9,vals[1])-1,0), vals[2]>vals[1]?"good":"hot"],
+      ["Names held, blended vs integrated", mixedNames+" vs "+(2*q), ""]
+    ].map(x=>`<div class="${x[2]}"><b>${x[1]}</b><small>${x[0]}</small></div>`).join("");
+
+    barChart($("sgBars"),{
+      categories:names, height:220, rotate:true, margin:{l:50,r:12,t:14,b:78},
+      series:[{values:vals,color:"var(--c1)"}],
+      yfmt:v=>num(v,2), ylabel:"return per unit of risk"
+    });
+    [...$("sgBars").querySelectorAll("rect")].forEach((r,i)=>{if(cols[i])r.setAttribute("fill",cols[i]);});
+
+    const rs=[];for(let i=0;i<=120;i++)rs.push(-0.2+i/120*1.1);
+    linePlot($("sgRhoChart"),{
+      height:230,
+      series:[
+        {points:rs.map(r=>{const OO=omega(r);return [r,icCombined(matVec(inverse(OO),ic),ic,OO)];}),color:"var(--c1)",width:2.4},
+        {points:rs.map(r=>[r,icCombined(wEq,ic,omega(r))]),color:"var(--c3)",width:2},
+        {points:rs.map(r=>[r,icBest]),color:"var(--c7)",width:1.6,dash:"4 4"}
+      ],
+      xmin:-0.2,xmax:0.9,ymin:0,
+      vlines:[{x:rho,color:"var(--c6)",label:"your ρ"}],
+      xfmt:v=>num(v,1), yfmt:v=>num(v,3),
+      xlabel:"correlation between signals", ylabel:"combined information coefficient"
+    });
+  }
+  SIG.forEach((_,i)=>$("sg"+i).addEventListener("input",update));
+  RHO.addEventListener("input",update);
+  $("sgRun").addEventListener("click",()=>{seed=(seed*1664525+1013904223)>>>0;update();});
+  REDRAW.push(update);update();
+})();
+</script>
+</body>
+</html>
